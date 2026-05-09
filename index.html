@@ -134,14 +134,19 @@ function getDate(offset) {
 }
 
 async function apiFetch(endpoint) {
-  const url = `https://v3.football.api-sports.io/${endpoint}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'x-apisports-key': API_KEY,
-      'x-rapidapi-host': 'v3.football.api-sports.io'
-    }
-  });
+  // Parse endpoint into query params for our backend
+  const parts = endpoint.split('?');
+  const path = parts[0];
+  const params = new URLSearchParams(parts[1] || '');
+  
+  let url = '';
+  if (path === 'fixtures/statistics') {
+    url = `/api/fixtures?fixture=${params.get('fixture')}`;
+  } else {
+    url = `/api/fixtures?league=${params.get('league')}&date=${params.get('date')}&season=${params.get('season') || '2025'}`;
+  }
+  
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
