@@ -1,1 +1,307 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OdoStats – AI Football Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c10; --bg2: #0f1419; --bg3: #161d26;
+  --border: #1e2733; --border2: #2a3544;
+  --text: #e8eef5; --text2: #8a9bb0; --text3: #4a5a6a;
+  --green: #00e676; --green2: #00b358; --green3: #003d1f;
+  --red: #ff4757; --yellow: #ffd600; --blue: #2196f3;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px; min-height: 100vh; }
+.nav { background: var(--bg2); border-bottom: 1px solid var(--border); height: 52px; display: flex; align-items: center; padding: 0 20px; gap: 20px; position: sticky; top: 0; z-index: 100; }
+.logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: #fff; }
+.logo span { color: var(--green); }
+.nav-btn { background: none; border: none; color: var(--text2); font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
+.nav-btn.active { background: var(--bg3); color: var(--text); }
+.nav-right { margin-left: auto; }
+.pro-btn { background: var(--green); color: #000; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 800; padding: 6px 16px; border-radius: 6px; border: none; cursor: pointer; }
+.layout { display: grid; grid-template-columns: 200px 1fr 220px; height: calc(100vh - 52px); }
+.sidebar { background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; padding: 12px 8px; }
+.sidebar-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1.2px; padding: 0 8px; margin: 12px 0 6px; }
+.league-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 7px; cursor: pointer; color: var(--text2); font-size: 13px; font-weight: 500; }
+.league-row:hover, .league-row.active { background: var(--bg3); color: var(--text); }
+.league-row.active { border-left: 3px solid var(--green); padding-left: 7px; }
+.main { overflow-y: auto; padding: 16px; }
+.tab-bar { display: flex; gap: 4px; margin-bottom: 14px; }
+.tab { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text2); cursor: pointer; border: 1px solid transparent; }
+.tab.active { background: var(--bg3); color: var(--text); border-color: var(--border2); }
+.pro-tag { background: var(--green); color: #000; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 3px; margin-left: 4px; }
+.section-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); display: inline-block; animation: blink 1.4s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.match-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
+.match-card:hover { border-color: var(--border2); }
+.match-card.selected { border-color: var(--green2); background: #0a1a10; }
+.match-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.match-league-label { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; }
+.match-time { font-size: 11px; font-weight: 700; color: var(--green); }
+.match-time.live { color: var(--red); }
+.match-teams { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.team-name { font-size: 14px; font-weight: 700; flex: 1; }
+.team-name.right { text-align: right; }
+.score-box { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; padding: 0 14px; min-width: 70px; text-align: center; }
+.odds-row { display: flex; gap: 5px; }
+.odd { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; text-align: center; }
+.odd-label { font-size: 9px; color: var(--text3); display: block; font-weight: 600; text-transform: uppercase; }
+.odd-val { font-size: 13px; font-weight: 700; }
+.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; gap: 12px; color: var(--text3); }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-box { background: var(--bg2); border: 1px solid var(--red); border-radius: 10px; padding: 16px; margin-bottom: 8px; color: var(--text2); font-size: 13px; line-height: 1.6; }
+.info-box { background: var(--bg2); border: 1px solid var(--green2); border-radius: 10px; padding: 16px; margin-bottom: 8px; color: var(--text2); font-size: 13px; line-height: 1.6; }
+.stats-panel { background: var(--bg2); border-left: 1px solid var(--border); overflow-y: auto; padding: 14px 12px; }
+.stats-match-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; line-height: 1.4; }
+.stats-section-title { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.stat-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.stat-name { font-size: 11px; color: var(--text3); min-width: 80px; }
+.bar-track { flex: 1; height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; }
+.stat-val { font-size: 11px; font-weight: 700; min-width: 28px; text-align: right; }
+.pro-section { background: #0a1a10; border: 1px solid var(--green2); border-radius: 8px; padding: 12px; margin-top: 14px; }
+.pro-section-title { font-size: 11px; font-weight: 700; color: var(--green); margin-bottom: 10px; }
+.pro-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--bg3); }
+.pro-row:last-of-type { border-bottom: none; }
+.pro-key { font-size: 11px; color: var(--text3); }
+.pro-val { font-size: 11px; font-weight: 700; filter: blur(4px); }
+.unlock-btn { width: 100%; margin-top: 10px; background: var(--green); color: #000; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 800; padding: 9px; border-radius: 6px; border: none; cursor: pointer; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar, .stats-panel { display: none; } }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="logo">Odo<span>Stats</span></div>
+  <div style="display:flex;gap:2px">
+    <button class="nav-btn active" onclick="loadFixtures(0)">Live</button>
+    <button class="nav-btn" onclick="loadFixtures(0)">Today</button>
+    <button class="nav-btn" onclick="loadFixtures(1)">Tomorrow</button>
+    <button class="nav-btn">Tips <span class="pro-tag">PRO</span></button>
+  </div>
+  <div class="nav-right">
+    <button class="pro-btn">Pro – CHF 9/mo</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-label">Top Leagues</div>
+    <div class="league-row active" onclick="selectLeague(this,2)">🏆 Champions League</div>
+    <div class="league-row" onclick="selectLeague(this,39)">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div>
+    <div class="league-row" onclick="selectLeague(this,78)">🇩🇪 Bundesliga</div>
+    <div class="league-row" onclick="selectLeague(this,140)">🇪🇸 La Liga</div>
+    <div class="league-row" onclick="selectLeague(this,135)">🇮🇹 Serie A</div>
+    <div class="league-row" onclick="selectLeague(this,61)">🇫🇷 Ligue 1</div>
+    <div class="sidebar-label">More</div>
+    <div class="league-row" onclick="selectLeague(this,207)">🇨🇭 Super League</div>
+    <div class="league-row" onclick="selectLeague(this,88)">🇳🇱 Eredivisie</div>
+    <div class="league-row" onclick="selectLeague(this,94)">🇵🇹 Primeira Liga</div>
+    <div class="league-row" onclick="selectLeague(this,203)">🇹🇷 Süper Lig</div>
+  </div>
+
+  <div class="main">
+    <div class="tab-bar">
+      <div class="tab active" onclick="showTab(this,'matches')">Matches</div>
+      <div class="tab" onclick="showTab(this,'tips')">AI Tips <span class="pro-tag">PRO</span></div>
+    </div>
+    <div id="view-matches">
+      <div id="matches-container">
+        <div class="loading"><div class="spinner"></div><span>Loading matches...</span></div>
+      </div>
+    </div>
+    <div id="view-tips" style="display:none">
+      <div class="error-box">🔒 AI Tips are a Pro feature. Upgrade to CHF 9/mo to access KI-powered predictions and value bets.</div>
+    </div>
+  </div>
+
+  <div class="stats-panel" id="stats-panel">
+    <div style="color:var(--text3);font-size:12px;text-align:center;padding:30px 10px">Select a match to see live statistics</div>
+  </div>
+</div>
+
+<script>
+const API_KEY = '9793892ae437091b5e51ad1f076d66fe';
+let selectedLeague = 2;
+
+function getDate(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().split('T')[0];
+}
+
+async function apiFetch(endpoint) {
+  // Use allorigins proxy to bypass CORS
+  const url = `https://v3.football.api-sports.io/${endpoint}`;
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+  
+  try {
+    const res = await fetch(proxyUrl, {
+      headers: { 'x-apisports-key': API_KEY }
+    });
+    const data = await res.json();
+    return JSON.parse(data.contents);
+  } catch(e) {
+    // Try direct as fallback
+    const res = await fetch(url, {
+      headers: { 'x-apisports-key': API_KEY }
+    });
+    return res.json();
+  }
+}
+
+async function loadFixtures(dayOffset = 0) {
+  const container = document.getElementById('matches-container');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading matches...</span></div>';
+  const date = getDate(dayOffset);
+  
+  try {
+    const data = await apiFetch(`fixtures?date=${date}&league=${selectedLeague}&season=2024`);
+    const fixtures = data.response || [];
+    
+    if (fixtures.length === 0) {
+      // Try 2025 season
+      const data2 = await apiFetch(`fixtures?date=${date}&league=${selectedLeague}&season=2025`);
+      const fixtures2 = data2.response || [];
+      if (fixtures2.length === 0) {
+        container.innerHTML = '<div class="info-box">✅ API connected! No matches today in this league. Try another league!</div>';
+        return;
+      }
+      renderFixtures(fixtures2, container);
+      return;
+    }
+    renderFixtures(fixtures, container);
+  } catch(e) {
+    container.innerHTML = `<div class="error-box">❌ Error: ${e.message}<br><br>Check your API key or try again.</div>`;
+  }
+}
+
+function renderFixtures(fixtures, container) {
+  const live = fixtures.filter(f => ['1H','2H','HT','ET','P','LIVE'].includes(f.fixture.status.short));
+  const upcoming = fixtures.filter(f => f.fixture.status.short === 'NS');
+  const finished = fixtures.filter(f => ['FT','AET','PEN'].includes(f.fixture.status.short));
+  let html = '';
+  if (live.length > 0) {
+    html += `<div class="section-bar"><div class="section-title"><span class="live-dot"></span> Live Now</div><span style="font-size:11px;color:var(--text3)">${live.length} live</span></div>`;
+    live.forEach(f => { html += renderMatch(f); });
+  }
+  if (upcoming.length > 0) {
+    html += `<div class="section-bar" style="margin-top:${live.length?'16px':'0'}"><div class="section-title">Upcoming</div></div>`;
+    upcoming.forEach(f => { html += renderMatch(f); });
+  }
+  if (finished.length > 0) {
+    html += `<div class="section-bar" style="margin-top:16px"><div class="section-title">Finished</div></div>`;
+    finished.forEach(f => { html += renderMatch(f); });
+  }
+  container.innerHTML = html;
+  const first = container.querySelector('.match-card');
+  if (first) first.click();
+}
+
+function renderMatch(f) {
+  const home = f.teams.home.name;
+  const away = f.teams.away.name;
+  const hg = f.goals.home ?? '–';
+  const ag = f.goals.away ?? '–';
+  const s = f.fixture.status;
+  const isLive = ['1H','2H','HT','ET','P','LIVE'].includes(s.short);
+  const isFT = ['FT','AET','PEN'].includes(s.short);
+  const timeLabel = isLive ? `${s.elapsed||''}' LIVE` : isFT ? 'FT' : new Date(f.fixture.date).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+  const score = (isLive||isFT) ? `${hg} – ${ag}` : 'vs';
+  const safeHome = home.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  const safeAway = away.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return `<div class="match-card" onclick="selectMatch(this,${f.fixture.id},'${safeHome}','${safeAway}')">
+    <div class="match-top">
+      <span class="match-league-label">${f.league.name} · ${f.league.round||''}</span>
+      <span class="match-time ${isLive?'live':''}">${timeLabel}</span>
+    </div>
+    <div class="match-teams">
+      <span class="team-name">${home}</span>
+      <span class="score-box">${score}</span>
+      <span class="team-name right">${away}</span>
+    </div>
+    <div class="odds-row">
+      <div class="odd"><span class="odd-label">Home</span><span class="odd-val">–</span></div>
+      <div class="odd"><span class="odd-label">Draw</span><span class="odd-val">–</span></div>
+      <div class="odd"><span class="odd-label">Away</span><span class="odd-val">–</span></div>
+    </div>
+  </div>`;
+}
+
+async function selectMatch(el, fixtureId, home, away) {
+  document.querySelectorAll('.match-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const panel = document.getElementById('stats-panel');
+  panel.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading stats...</span></div>';
+  try {
+    const data = await apiFetch(`fixtures/statistics?fixture=${fixtureId}`);
+    const stats = data.response || [];
+    panel.innerHTML = renderStatsPanel(home, away, stats.length >= 2 ? stats : null);
+  } catch(e) {
+    panel.innerHTML = renderStatsPanel(home, away, null);
+  }
+}
+
+function renderStatsPanel(home, away, stats) {
+  const getStat = (arr, type) => { const s = arr?.find(s=>s.type===type); return s?(s.value??0):0; };
+  const hs = stats?.[0]?.statistics;
+  const as2 = stats?.[1]?.statistics;
+  const poss = parseInt(getStat(hs,'Ball Possession'))||50;
+  const shots = getStat(hs,'Total Shots');
+  const aShots = getStat(as2,'Total Shots');
+  const sot = getStat(hs,'Shots on Goal');
+  const aSot = getStat(as2,'Shots on Goal');
+  const passes = getStat(hs,'Total passes');
+  const aPasses = getStat(as2,'Total passes');
+  const corners = getStat(hs,'Corner Kicks');
+  const aCorners = getStat(as2,'Corner Kicks');
+  const maxS = Math.max(shots+aShots,1);
+  const maxP = Math.max(passes+aPasses,1);
+  const maxC = Math.max(corners+aCorners,1);
+  return `
+    <div class="stats-match-title">${home} vs ${away}</div>
+    ${!stats ? '<div style="font-size:12px;color:var(--text3);margin-bottom:12px">Stats available once match starts</div>' : `
+    <div class="stats-section-title">Live Stats (Home)</div>
+    <div class="stat-row"><span class="stat-name">Possession</span><div class="bar-track"><div class="bar-fill" style="width:${poss}%;background:var(--green)"></div></div><span class="stat-val" style="color:var(--green)">${poss}%</span></div>
+    <div class="stat-row"><span class="stat-name">Shots</span><div class="bar-track"><div class="bar-fill" style="width:${(shots/maxS)*100}%;background:var(--blue)"></div></div><span class="stat-val">${shots}</span></div>
+    <div class="stat-row"><span class="stat-name">On Target</span><div class="bar-track"><div class="bar-fill" style="width:${sot+aSot>0?(sot/(sot+aSot))*100:0}%;background:var(--blue)"></div></div><span class="stat-val">${sot}</span></div>
+    <div class="stat-row"><span class="stat-name">Passes</span><div class="bar-track"><div class="bar-fill" style="width:${(passes/maxP)*100}%;background:var(--blue)"></div></div><span class="stat-val">${passes}</span></div>
+    <div class="stat-row"><span class="stat-name">Corners</span><div class="bar-track"><div class="bar-fill" style="width:${(corners/maxC)*100}%;background:var(--yellow)"></div></div><span class="stat-val">${corners}</span></div>
+    `}
+    <div class="pro-section">
+      <div class="pro-section-title">🔒 Pro Stats</div>
+      <div class="pro-row"><span class="pro-key">xG Home</span><span class="pro-val">1.42</span></div>
+      <div class="pro-row"><span class="pro-key">xG Away</span><span class="pro-val">0.87</span></div>
+      <div class="pro-row"><span class="pro-key">H2H Record</span><span class="pro-val">5W 2D 3L</span></div>
+      <div class="pro-row"><span class="pro-key">Corner Trend</span><span class="pro-val">Over 9.5</span></div>
+      <button class="unlock-btn">Unlock Pro – CHF 9/mo</button>
+    </div>`;
+}
+
+function selectLeague(el, id) {
+  document.querySelectorAll('.league-row').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  selectedLeague = id;
+  loadFixtures(0);
+}
+
+function showTab(el, tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('view-matches').style.display = tab==='matches'?'block':'none';
+  document.getElementById('view-tips').style.display = tab==='tips'?'block':'none';
+}
+
+loadFixtures(0);
+setInterval(() => loadFixtures(0), 60000);
+</script>
+</body>
+</html>
