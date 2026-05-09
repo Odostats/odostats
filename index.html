@@ -171,12 +171,18 @@ body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-se
       <div class="detail-header">
         <button class="back-btn" onclick="showMatchesList()">← Back to matches</button>
         <div class="detail-scoreboard">
-          <div class="detail-team"><div class="detail-team-name" id="d-home">–</div></div>
+          <div class="detail-team">
+            <img id="d-home-logo" src="" style="width:40px;height:40px;object-fit:contain;margin-bottom:6px" onerror="this.style.display='none'">
+            <div class="detail-team-name" id="d-home">–</div>
+          </div>
           <div>
             <div class="detail-score" id="d-score">– vs –</div>
             <div class="detail-status" id="d-status"></div>
           </div>
-          <div class="detail-team"><div class="detail-team-name" id="d-away">–</div></div>
+          <div class="detail-team">
+            <img id="d-away-logo" src="" style="width:40px;height:40px;object-fit:contain;margin-bottom:6px" onerror="this.style.display='none'">
+            <div class="detail-team-name" id="d-away">–</div>
+          </div>
         </div>
       </div>
       <div class="detail-tabs">
@@ -304,6 +310,8 @@ async function openMatchDetail(fDataEncoded) {
 
   document.getElementById('d-home').textContent = f.home;
   document.getElementById('d-away').textContent = f.away;
+  if (f.homeLogo) document.getElementById('d-home-logo').src = f.homeLogo;
+  if (f.awayLogo) document.getElementById('d-away-logo').src = f.awayLogo;
   const isLive = ['1H','2H','HT','ET','P'].includes(f.status);
   const isFT = ['FT','AET','PEN'].includes(f.status);
   document.getElementById('d-score').textContent = (isLive||isFT) ? `${f.hg} – ${f.ag}` : 'vs';
