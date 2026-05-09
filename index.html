@@ -56,9 +56,9 @@ body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-se
 .spinner { width: 32px; height: 32px; border: 3px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .error-box { background: var(--bg2); border: 1px solid var(--red); border-radius: 10px; padding: 16px; margin-bottom: 8px; color: var(--text2); font-size: 13px; line-height: 1.6; }
-.info-box { background: var(--bg2); border: 1px solid var(--green2); border-radius: 10px; padding: 16px; margin-bottom: 8px; color: var(--text2); font-size: 13px; line-height: 1.6; }
+.info-box { background: var(--bg2); border: 1px solid var(--green2); border-radius: 10px; padding: 16px; margin-bottom: 8px; color: var(--text2); font-size: 13px; }
 .stats-panel { background: var(--bg2); border-left: 1px solid var(--border); overflow-y: auto; padding: 14px 12px; }
-.stats-match-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; line-height: 1.4; }
+.stats-match-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
 .stats-section-title { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
 .stat-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
 .stat-name { font-size: 11px; color: var(--text3); min-width: 80px; }
@@ -87,26 +87,24 @@ body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-se
     <button class="nav-btn">Tips <span class="pro-tag">PRO</span></button>
   </div>
   <div class="nav-right">
-    <button class="pro-btn">Pro – CHF 9/mo</button>
+    <button class="pro-btn">Pro - CHF 9/mo</button>
   </div>
 </nav>
-
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-label">Top Leagues</div>
-    <div class="league-row active" onclick="selectLeague(this,2)">🏆 Champions League</div>
-    <div class="league-row" onclick="selectLeague(this,39)">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div>
+    <div class="league-row active" onclick="selectLeague(this,39)">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div>
     <div class="league-row" onclick="selectLeague(this,78)">🇩🇪 Bundesliga</div>
     <div class="league-row" onclick="selectLeague(this,140)">🇪🇸 La Liga</div>
     <div class="league-row" onclick="selectLeague(this,135)">🇮🇹 Serie A</div>
     <div class="league-row" onclick="selectLeague(this,61)">🇫🇷 Ligue 1</div>
+    <div class="league-row" onclick="selectLeague(this,2)">🏆 Champions League</div>
     <div class="sidebar-label">More</div>
     <div class="league-row" onclick="selectLeague(this,207)">🇨🇭 Super League</div>
     <div class="league-row" onclick="selectLeague(this,88)">🇳🇱 Eredivisie</div>
     <div class="league-row" onclick="selectLeague(this,94)">🇵🇹 Primeira Liga</div>
-    <div class="league-row" onclick="selectLeague(this,203)">🇹🇷 Süper Lig</div>
+    <div class="league-row" onclick="selectLeague(this,203)">🇹🇷 Super Lig</div>
   </div>
-
   <div class="main">
     <div class="tab-bar">
       <div class="tab active" onclick="showTab(this,'matches')">Matches</div>
@@ -118,171 +116,132 @@ body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-se
       </div>
     </div>
     <div id="view-tips" style="display:none">
-      <div class="error-box">🔒 AI Tips are a Pro feature. Upgrade to CHF 9/mo to access KI-powered predictions and value bets.</div>
+      <div class="error-box">Upgrade to Pro for AI Tips - CHF 9/mo</div>
     </div>
   </div>
-
   <div class="stats-panel" id="stats-panel">
-    <div style="color:var(--text3);font-size:12px;text-align:center;padding:30px 10px">Select a match to see live statistics</div>
+    <div style="color:var(--text3);font-size:12px;text-align:center;padding:30px 10px">Select a match to see statistics</div>
   </div>
 </div>
-
 <script>
 const API_KEY = '9793892ae437091b5e51ad1f076d66fe';
-let selectedLeague = 2;
+let selectedLeague = 39;
 
-function getDate(offset = 0) {
+function getDate(offset) {
   const d = new Date();
   d.setDate(d.getDate() + offset);
   return d.toISOString().split('T')[0];
 }
 
 async function apiFetch(endpoint) {
-  // Use allorigins proxy to bypass CORS
   const url = `https://v3.football.api-sports.io/${endpoint}`;
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-  
-  try {
-    const res = await fetch(proxyUrl, {
-      headers: { 'x-apisports-key': API_KEY }
-    });
-    const data = await res.json();
-    return JSON.parse(data.contents);
-  } catch(e) {
-    // Try direct as fallback
-    const res = await fetch(url, {
-      headers: { 'x-apisports-key': API_KEY }
-    });
-    return res.json();
-  }
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'x-apisports-key': API_KEY,
+      'x-rapidapi-host': 'v3.football.api-sports.io'
+    }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
-async function loadFixtures(dayOffset = 0) {
+async function loadFixtures(offset) {
   const container = document.getElementById('matches-container');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading matches...</span></div>';
-  const date = getDate(dayOffset);
-  
+  container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading...</span></div>';
+  const date = getDate(offset);
   try {
     const data = await apiFetch(`fixtures?date=${date}&league=${selectedLeague}&season=2025`);
     const fixtures = data.response || [];
-    
     if (fixtures.length === 0) {
-      // Try 2025 season
-      const data2 = await apiFetch(`fixtures?date=${date}&league=${selectedLeague}&season=2025`);
-      const fixtures2 = data2.response || [];
-      if (fixtures2.length === 0) {
-        container.innerHTML = '<div class="info-box">✅ API connected! No matches today in this league. Try another league!</div>';
-        return;
-      }
-      renderFixtures(fixtures2, container);
+      container.innerHTML = `<div class="info-box">No matches on ${date} for this league. Try another league!</div>`;
       return;
     }
-    renderFixtures(fixtures, container);
+    const live = fixtures.filter(f => ['1H','2H','HT','ET','P'].includes(f.fixture.status.short));
+    const upcoming = fixtures.filter(f => f.fixture.status.short === 'NS');
+    const finished = fixtures.filter(f => ['FT','AET','PEN'].includes(f.fixture.status.short));
+    let html = '';
+    if (live.length > 0) {
+      html += `<div class="section-bar"><div class="section-title"><span class="live-dot"></span> Live Now</div><span style="font-size:11px;color:var(--text3)">${live.length} live</span></div>`;
+      live.forEach(f => html += card(f));
+    }
+    if (upcoming.length > 0) {
+      html += `<div class="section-bar" style="margin-top:16px"><div class="section-title">Upcoming</div></div>`;
+      upcoming.forEach(f => html += card(f));
+    }
+    if (finished.length > 0) {
+      html += `<div class="section-bar" style="margin-top:16px"><div class="section-title">Finished</div></div>`;
+      finished.forEach(f => html += card(f));
+    }
+    container.innerHTML = html;
+    const first = container.querySelector('.match-card');
+    if (first) first.click();
   } catch(e) {
-    container.innerHTML = `<div class="error-box">❌ Error: ${e.message}<br><br>Check your API key or try again.</div>`;
+    container.innerHTML = `<div class="error-box">Error: ${e.message}<br>Check API key or try again.</div>`;
   }
 }
 
-function renderFixtures(fixtures, container) {
-  const live = fixtures.filter(f => ['1H','2H','HT','ET','P','LIVE'].includes(f.fixture.status.short));
-  const upcoming = fixtures.filter(f => f.fixture.status.short === 'NS');
-  const finished = fixtures.filter(f => ['FT','AET','PEN'].includes(f.fixture.status.short));
-  let html = '';
-  if (live.length > 0) {
-    html += `<div class="section-bar"><div class="section-title"><span class="live-dot"></span> Live Now</div><span style="font-size:11px;color:var(--text3)">${live.length} live</span></div>`;
-    live.forEach(f => { html += renderMatch(f); });
-  }
-  if (upcoming.length > 0) {
-    html += `<div class="section-bar" style="margin-top:${live.length?'16px':'0'}"><div class="section-title">Upcoming</div></div>`;
-    upcoming.forEach(f => { html += renderMatch(f); });
-  }
-  if (finished.length > 0) {
-    html += `<div class="section-bar" style="margin-top:16px"><div class="section-title">Finished</div></div>`;
-    finished.forEach(f => { html += renderMatch(f); });
-  }
-  container.innerHTML = html;
-  const first = container.querySelector('.match-card');
-  if (first) first.click();
-}
-
-function renderMatch(f) {
+function card(f) {
   const home = f.teams.home.name;
   const away = f.teams.away.name;
-  const hg = f.goals.home ?? '–';
-  const ag = f.goals.away ?? '–';
+  const hg = f.goals.home ?? '-';
+  const ag = f.goals.away ?? '-';
   const s = f.fixture.status;
-  const isLive = ['1H','2H','HT','ET','P','LIVE'].includes(s.short);
+  const isLive = ['1H','2H','HT','ET','P'].includes(s.short);
   const isFT = ['FT','AET','PEN'].includes(s.short);
-  const timeLabel = isLive ? `${s.elapsed||''}' LIVE` : isFT ? 'FT' : new Date(f.fixture.date).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
-  const score = (isLive||isFT) ? `${hg} – ${ag}` : 'vs';
-  const safeHome = home.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-  const safeAway = away.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-  return `<div class="match-card" onclick="selectMatch(this,${f.fixture.id},'${safeHome}','${safeAway}')">
-    <div class="match-top">
-      <span class="match-league-label">${f.league.name} · ${f.league.round||''}</span>
-      <span class="match-time ${isLive?'live':''}">${timeLabel}</span>
-    </div>
-    <div class="match-teams">
-      <span class="team-name">${home}</span>
-      <span class="score-box">${score}</span>
-      <span class="team-name right">${away}</span>
-    </div>
+  const time = isLive ? `${s.elapsed||''}\' LIVE` : isFT ? 'FT' : new Date(f.fixture.date).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const score = (isLive||isFT) ? `${hg} - ${ag}` : 'vs';
+  const h = home.replace(/'/g,"\\'");
+  const a = away.replace(/'/g,"\\'");
+  return `<div class="match-card" onclick="selectMatch(this,${f.fixture.id},'${h}','${a}')">
+    <div class="match-top"><span class="match-league-label">${f.league.name}</span><span class="match-time ${isLive?'live':''}">${time}</span></div>
+    <div class="match-teams"><span class="team-name">${home}</span><span class="score-box">${score}</span><span class="team-name right">${away}</span></div>
     <div class="odds-row">
-      <div class="odd"><span class="odd-label">Home</span><span class="odd-val">–</span></div>
-      <div class="odd"><span class="odd-label">Draw</span><span class="odd-val">–</span></div>
-      <div class="odd"><span class="odd-label">Away</span><span class="odd-val">–</span></div>
+      <div class="odd"><span class="odd-label">Home</span><span class="odd-val">-</span></div>
+      <div class="odd"><span class="odd-label">Draw</span><span class="odd-val">-</span></div>
+      <div class="odd"><span class="odd-label">Away</span><span class="odd-val">-</span></div>
     </div>
   </div>`;
 }
 
-async function selectMatch(el, fixtureId, home, away) {
+async function selectMatch(el, id, home, away) {
   document.querySelectorAll('.match-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   const panel = document.getElementById('stats-panel');
   panel.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading stats...</span></div>';
   try {
-    const data = await apiFetch(`fixtures/statistics?fixture=${fixtureId}`);
+    const data = await apiFetch(`fixtures/statistics?fixture=${id}`);
     const stats = data.response || [];
-    panel.innerHTML = renderStatsPanel(home, away, stats.length >= 2 ? stats : null);
+    const hs = stats[0]?.statistics;
+    const as2 = stats[1]?.statistics;
+    const get = (arr, t) => { const s = arr?.find(x=>x.type===t); return s?(s.value??0):0; };
+    const poss = parseInt(get(hs,'Ball Possession'))||50;
+    const shots = get(hs,'Total Shots'), aShots = get(as2,'Total Shots');
+    const sot = get(hs,'Shots on Goal'), aSot = get(as2,'Shots on Goal');
+    const passes = get(hs,'Total passes'), aPasses = get(as2,'Total passes');
+    const corners = get(hs,'Corner Kicks'), aCorners = get(as2,'Corner Kicks');
+    const mS = Math.max(shots+aShots,1), mP = Math.max(passes+aPasses,1), mC = Math.max(corners+aCorners,1);
+    panel.innerHTML = `
+      <div class="stats-match-title">${home} vs ${away}</div>
+      ${stats.length < 2 ? '<div style="font-size:12px;color:var(--text3);margin-bottom:12px">Stats available once match starts</div>' : `
+      <div class="stats-section-title">Live Stats</div>
+      <div class="stat-row"><span class="stat-name">Possession</span><div class="bar-track"><div class="bar-fill" style="width:${poss}%;background:var(--green)"></div></div><span class="stat-val" style="color:var(--green)">${poss}%</span></div>
+      <div class="stat-row"><span class="stat-name">Shots</span><div class="bar-track"><div class="bar-fill" style="width:${(shots/mS)*100}%;background:var(--blue)"></div></div><span class="stat-val">${shots}</span></div>
+      <div class="stat-row"><span class="stat-name">On Target</span><div class="bar-track"><div class="bar-fill" style="width:${sot+aSot>0?(sot/(sot+aSot))*100:0}%;background:var(--blue)"></div></div><span class="stat-val">${sot}</span></div>
+      <div class="stat-row"><span class="stat-name">Passes</span><div class="bar-track"><div class="bar-fill" style="width:${(passes/mP)*100}%;background:var(--blue)"></div></div><span class="stat-val">${passes}</span></div>
+      <div class="stat-row"><span class="stat-name">Corners</span><div class="bar-track"><div class="bar-fill" style="width:${(corners/mC)*100}%;background:var(--yellow)"></div></div><span class="stat-val">${corners}</span></div>
+      `}
+      <div class="pro-section">
+        <div class="pro-section-title">Pro Stats</div>
+        <div class="pro-row"><span class="pro-key">xG Home</span><span class="pro-val">1.42</span></div>
+        <div class="pro-row"><span class="pro-key">xG Away</span><span class="pro-val">0.87</span></div>
+        <div class="pro-row"><span class="pro-key">H2H Record</span><span class="pro-val">5W 2D 3L</span></div>
+        <div class="pro-row"><span class="pro-key">Corner Trend</span><span class="pro-val">Over 9.5</span></div>
+        <button class="unlock-btn">Unlock Pro - CHF 9/mo</button>
+      </div>`;
   } catch(e) {
-    panel.innerHTML = renderStatsPanel(home, away, null);
+    panel.innerHTML = `<div class="error-box">Stats error: ${e.message}</div>`;
   }
-}
-
-function renderStatsPanel(home, away, stats) {
-  const getStat = (arr, type) => { const s = arr?.find(s=>s.type===type); return s?(s.value??0):0; };
-  const hs = stats?.[0]?.statistics;
-  const as2 = stats?.[1]?.statistics;
-  const poss = parseInt(getStat(hs,'Ball Possession'))||50;
-  const shots = getStat(hs,'Total Shots');
-  const aShots = getStat(as2,'Total Shots');
-  const sot = getStat(hs,'Shots on Goal');
-  const aSot = getStat(as2,'Shots on Goal');
-  const passes = getStat(hs,'Total passes');
-  const aPasses = getStat(as2,'Total passes');
-  const corners = getStat(hs,'Corner Kicks');
-  const aCorners = getStat(as2,'Corner Kicks');
-  const maxS = Math.max(shots+aShots,1);
-  const maxP = Math.max(passes+aPasses,1);
-  const maxC = Math.max(corners+aCorners,1);
-  return `
-    <div class="stats-match-title">${home} vs ${away}</div>
-    ${!stats ? '<div style="font-size:12px;color:var(--text3);margin-bottom:12px">Stats available once match starts</div>' : `
-    <div class="stats-section-title">Live Stats (Home)</div>
-    <div class="stat-row"><span class="stat-name">Possession</span><div class="bar-track"><div class="bar-fill" style="width:${poss}%;background:var(--green)"></div></div><span class="stat-val" style="color:var(--green)">${poss}%</span></div>
-    <div class="stat-row"><span class="stat-name">Shots</span><div class="bar-track"><div class="bar-fill" style="width:${(shots/maxS)*100}%;background:var(--blue)"></div></div><span class="stat-val">${shots}</span></div>
-    <div class="stat-row"><span class="stat-name">On Target</span><div class="bar-track"><div class="bar-fill" style="width:${sot+aSot>0?(sot/(sot+aSot))*100:0}%;background:var(--blue)"></div></div><span class="stat-val">${sot}</span></div>
-    <div class="stat-row"><span class="stat-name">Passes</span><div class="bar-track"><div class="bar-fill" style="width:${(passes/maxP)*100}%;background:var(--blue)"></div></div><span class="stat-val">${passes}</span></div>
-    <div class="stat-row"><span class="stat-name">Corners</span><div class="bar-track"><div class="bar-fill" style="width:${(corners/maxC)*100}%;background:var(--yellow)"></div></div><span class="stat-val">${corners}</span></div>
-    `}
-    <div class="pro-section">
-      <div class="pro-section-title">🔒 Pro Stats</div>
-      <div class="pro-row"><span class="pro-key">xG Home</span><span class="pro-val">1.42</span></div>
-      <div class="pro-row"><span class="pro-key">xG Away</span><span class="pro-val">0.87</span></div>
-      <div class="pro-row"><span class="pro-key">H2H Record</span><span class="pro-val">5W 2D 3L</span></div>
-      <div class="pro-row"><span class="pro-key">Corner Trend</span><span class="pro-val">Over 9.5</span></div>
-      <button class="unlock-btn">Unlock Pro – CHF 9/mo</button>
-    </div>`;
 }
 
 function selectLeague(el, id) {
