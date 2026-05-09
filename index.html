@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -164,7 +163,7 @@ async function loadFixtures(dayOffset = 0) {
   const date = getDate(dayOffset);
   
   try {
-    const data = await apiFetch(`fixtures?date=${date}&league=${selectedLeague}&season=2024`);
+    const data = await apiFetch(`fixtures?date=${date}&league=${selectedLeague}&season=2025`);
     const fixtures = data.response || [];
     
     if (fixtures.length === 0) {
