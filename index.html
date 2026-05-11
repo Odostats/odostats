@@ -529,7 +529,7 @@ async function loadLineup(){
     if(lu.length<2){body.innerHTML='<div class="empty">Lineups not available yet</div>';return;}
     const pc={G:'pG',D:'pD',M:'pM',F:'pF'};
     const rt=(t)=>{
-      let h=`<div class="lu-team-header">${t.team.logo?`<img src="${t.team.logo}" class="lu-crest" onerror="this.style.display='none'">`''}<span class="lu-team-nm">${t.team.name}</span></div>`;
+      let h='<div class="lu-team-header">'+(t.team.logo?'<img src="'+t.team.logo+'" class="lu-crest" onerror="this.style.display=\'none\'">':"")+'<span class="lu-team-nm">'+t.team.name+'</span></div>';
       h+=`<div class="formation-badge">${t.formation||'–'}</div>`;
       t.startXI?.forEach(p=>{
         const pd=encodeURIComponent(JSON.stringify({name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||''}));
