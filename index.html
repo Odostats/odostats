@@ -332,9 +332,10 @@ async function loadAllMatches(){
   panel.innerHTML='<div class="spin-wrap"><div class="spin"></div><span>Loading matches...</span></div>';
   const ds=currentDate.toISOString().split('T')[0];
   try{
-    const data=await apiFetch('date='+ds+'&season=2025');
-    allFixtures=data.response||[];
-    renderMatches();
+  const leagues=[39,78,140,135,61,2,3,848,207,88,94,203,144,119,113,103,106,253,71,128,307];
+  const results=await Promise.all(leagues.map(lid=>apiFetch('date='+ds+'&league='+lid+'&season=2025').catch(()=>({response:[]}))));
+  allFixtures=results.flatMap(r=>r.response||[]);
+  renderMatches();
   }catch(e){
     panel.innerHTML='<div class="empty">Error: '+e.message+'</div>';
   }
