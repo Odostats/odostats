@@ -332,7 +332,7 @@ async function loadAllMatches(){
   panel.innerHTML='<div class="spin-wrap"><div class="spin"></div><span>Loading matches...</span></div>';
   const ds=currentDate.toISOString().split('T')[0];
   try{
-  const leagues=[2,3,39,40,41,61,62,71,78,79,88,94,98,103,106,113,119,128,135,136,140,141,144,169,179,197,203,207,218,253,262,307,383,848];
+const leagues=[2,3,4,39,40,41,45,48,61,62,63,65,66,71,72,73,74,75,78,79,80,81,88,89,94,95,98,103,106,107,113,114,119,120,128,129,130,135,136,140,141,144,145,169,170,171,179,180,197,198,203,204,207,208,209,218,219,253,254,255,256,262,263,269,271,283,286,290,292,307,308,318,321,327,333,348,383,384,385,386,480,848,849,850];
   const results=await Promise.all(leagues.map(lid=>apiFetch('date='+ds+'&league='+lid+'&season=2025').catch(()=>({response:[]}))));
   allFixtures=results.flatMap(r=>r.response||[]);
   renderMatches();
