@@ -22,6 +22,8 @@ export default async function handler(req, res) {
     endpoint = `fixtures?team=${q.team}&last=${q.last || 5}&season=${q.season || '2025'}`;
   } else if (q.h2h) {
     endpoint = `fixtures/headtohead?h2h=${q.h2h}&last=10`;
+  } else if (q.events) {
+  endpoint = `fixtures/events?fixture=${q.fixture}`;
   } else {
     endpoint = `fixtures?date=${q.date}&league=${q.league}&season=${q.season || '2025'}`;
   }
