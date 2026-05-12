@@ -349,7 +349,8 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
         <div class="dtab" onclick="showDTab(this,'h2h')">⚔️ H2H</div>
         <div class="dtab" onclick="showDTab(this,'last')">📅 Last Matches</div>
         <div class="dtab" onclick="showDTab(this,'table')">🏆 Table</div>
-      </div>
+        <div class="dtab" onclick="showDTab(this,'events')">⚡ Events</div>
+</div>
       <div class="detail-body" id="detail-body"></div>
     </div>
   </div>
@@ -715,6 +716,7 @@ function showDTab(el,tab){
   if(tab==='h2h')loadH2H();
   if(tab==='last')loadLast();
   if(tab==='table')loadTable();
+  if(tab==='events')loadEvents();
 }
 
 async function loadStats(){
