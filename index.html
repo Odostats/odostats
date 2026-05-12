@@ -904,6 +904,24 @@ function handleLogin(){
   document.getElementById('login-btn').textContent=email.split('@')[0];
   document.getElementById('login-btn').style.color='var(--green)';
   alert('Welcome! Login system coming soon with full database.');
+}async function loadEvents(){
+  const body=document.getElementById('detail-body');
+  try{
+    const data=await apiFetch('events=1&fixture='+currentFixtureId);
+    const events=data.response||[];
+    if(!events.length){body.innerHTML='<div class="empty">No events yet</div>';return;}
+    let html='<div class="sec-title">Match Events</div>';
+    events.forEach(e=>{
+      const icon=e.type==='Goal'?'⚽':e.type==='Card'?(e.detail==='Red Card'?'🟥':'🟨'):e.type==='subst'?'🔄':'📌';
+      html+=`<div class="lm-row">
+        <span class="lm-date" style="color:var(--green);font-weight:700">${e.time.elapsed}'</span>
+        <span style="font-size:16px">${icon}</span>
+        <span class="lm-teams">${e.player.name}${e.assist?.name?' ('+e.assist.name+')':''}</span>
+        <span style="font-size:10px;color:var(--text3)">${e.team.name}</span>
+      </div>`;
+    });
+    body.innerHTML=html;
+  }catch(e){body.innerHTML='<div class="empty">Error: '+e.message+'</div>';}
 }
 
 // INIT
@@ -913,3 +931,4 @@ setInterval(()=>{if(document.getElementById('matches-panel').style.display!=='no
 </script>
 </body>
 </html>
+
