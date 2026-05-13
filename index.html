@@ -788,22 +788,50 @@ async function loadOdds(){
 async function loadLineup(){
   const body=document.getElementById('detail-body');
   try{
-    const data=await apiFetch('lineup=1&fixture='+currentFixtureId);
-    const lu=data.response||[];
+    const [luData,evData]=await Promise.all([
+      apiFetch('lineup=1&fixture='+currentFixtureId),
+      apiFetch('events=1&fixture='+currentFixtureId)
+    ]);
+    const lu=luData.response||[];
+    const events=evData.response||[];
     if(lu.length<2){body.innerHTML='<div class="empty">Lineups not available yet</div>';return;}
+    const playerEvents={};
+    events.forEach(e=>{
+      const pid=e.player?.id;
+      if(!pid)return;
+      if(!playerEvents[pid])playerEvents[pid]=[];
+      playerEvents[pid].push(e);
+      if(e.assist?.id){
+        if(!playerEvents[e.assist.id])playerEvents[e.assist.id]=[];
+        playerEvents[e.assist.id].push({...e,isAssist:true});
+      }
+    });
+    const getEventIcons=(playerId)=>{
+      const evs=playerEvents[playerId]||[];
+      return evs.map(e=>{
+        if(e.isAssist)return`<span>🅰️${e.time.elapsed}'</span>`;
+        if(e.type==='Goal')return`<span>⚽${e.time.elapsed}'</span>`;
+        if(e.type==='Card'&&e.detail==='Yellow Card')return`<span>🟨${e.time.elapsed}'</span>`;
+        if(e.type==='Card'&&e.detail==='Red Card')return`<span>🟥${e.time.elapsed}'</span>`;
+        if(e.type==='subst')return`<span>🔄${e.time.elapsed}'</span>`;
+        return'';
+      }).join(' ');
+    };
     const pc={G:'pG',D:'pD',M:'pM',F:'pF'};
     const rt=(t)=>{
       let h='<div class="lu-team-header">'+(t.team.logo?'<img src="'+t.team.logo+'" class="lu-crest" onerror="this.style.display=\'none\'">':'')+'<span class="lu-team-nm">'+t.team.name+'</span></div>';
       h+='<div class="formation-badge">'+(t.formation||'–')+'</div>';
       t.startXI?.forEach(p=>{
+        const icons=getEventIcons(p.player.id);
         const pd=encodeURIComponent(JSON.stringify({name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',playerId:p.player.id}));
-        h+='<div class="player-row" onclick="openPlayer(\''+pd+'\')"><img src="'+(p.player.photo||'')+'" class="player-photo" onerror="this.style.opacity=\'0.3\'"><span class="player-num">'+(p.player.number||'–')+'</span><span class="player-nm">'+p.player.name+'</span><span class="pos-tag '+(pc[p.player.pos]||'pM')+'">'+(p.player.pos||'–')+'</span></div>';
+        h+=`<div class="player-row" onclick="openPlayer('${pd}')"><img src="${p.player.photo||''}" class="player-photo" onerror="this.style.opacity='0.3'"><span class="player-num">${p.player.number||'–'}</span><span class="player-nm">${p.player.name}</span><span style="font-size:10px;gap:3px;display:flex">${icons}</span><span class="pos-tag ${pc[p.player.pos]||'pM'}">${p.player.pos||'–'}</span></div>`;
       });
       if(t.substitutes?.length){
         h+='<div class="sub-sep">Substitutes</div>';
         t.substitutes.forEach(p=>{
+          const icons=getEventIcons(p.player.id);
           const pd=encodeURIComponent(JSON.stringify({name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',playerId:p.player.id}));
-          h+='<div class="player-row" style="opacity:0.6" onclick="openPlayer(\''+pd+'\')"><img src="'+(p.player.photo||'')+'" class="player-photo" onerror="this.style.opacity=\'0.3\'"><span class="player-num">'+(p.player.number||'–')+'</span><span class="player-nm">'+p.player.name+'</span><span class="pos-tag '+(pc[p.player.pos]||'pM')+'">'+(p.player.pos||'–')+'</span></div>';
+          h+=`<div class="player-row" style="opacity:0.6" onclick="openPlayer('${pd}')"><img src="${p.player.photo||''}" class="player-photo" onerror="this.style.opacity='0.3'"><span class="player-num">${p.player.number||'–'}</span><span class="player-nm">${p.player.name}</span><span style="font-size:10px;gap:3px;display:flex">${icons}</span><span class="pos-tag ${pc[p.player.pos]||'pM'}">${p.player.pos||'–'}</span></div>`;
         });
       }
       return h;
@@ -811,7 +839,6 @@ async function loadLineup(){
     body.innerHTML='<div class="lineup-wrap"><div>'+rt(lu[0])+'</div><div>'+rt(lu[1])+'</div></div>';
   }catch(e){body.innerHTML='<div class="empty">Error: '+e.message+'</div>';}
 }
-
 async function loadH2H(){
   const body=document.getElementById('detail-body');
   try{
