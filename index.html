@@ -343,13 +343,13 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
         </div>
       </div>
       <div class="detail-tabs">
-        <div class="dtab active" onclick="showDTab(this,'stats')">📊 Stats</div>
-        <div class="dtab" onclick="showDTab(this,'odds')">💰 Odds</div>
-        <div class="dtab" onclick="showDTab(this,'lineup')">👕 Lineup</div>
-        <div class="dtab" onclick="showDTab(this,'h2h')">⚔️ H2H</div>
-        <div class="dtab" onclick="showDTab(this,'last')">📅 Last Matches</div>
-        <div class="dtab" onclick="showDTab(this,'table')">🏆 Table</div>
-        <div class="dtab" onclick="showDTab(this,'events')">⚡ Events</div>
+       <div class="dtab active" onclick="showDTab(this,'events')">⚡ Events</div>
+<div class="dtab" onclick="showDTab(this,'stats')">📊 Stats</div>
+<div class="dtab" onclick="showDTab(this,'odds')">💰 Odds</div>
+<div class="dtab" onclick="showDTab(this,'lineup')">👕 Lineup</div>
+<div class="dtab" onclick="showDTab(this,'h2h')">⚔️ H2H</div>
+<div class="dtab" onclick="showDTab(this,'last')">📅 Last Matches</div>
+<div class="dtab" onclick="showDTab(this,'table')">🏆 Table</div>
 </div>
       <div class="detail-body" id="detail-body"></div>
     </div>
@@ -701,8 +701,10 @@ async function openDetail(enc){
   document.getElementById('search-panel').style.display='none';
   document.getElementById('detail-panel').style.display='flex';
   document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
-  document.querySelector('.dtab').classList.add('active');
-  loadStats();
+ const tabs=document.querySelectorAll('.dtab');
+tabs.forEach(t=>t.classList.remove('active'));
+if(isLive){tabs[0].classList.add('active');loadEvents();}
+else{tabs[0].classList.add('active');loadStats();}
 }
 
 function showDTab(el,tab){
