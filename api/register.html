@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrieren - Odostats</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .login-box {
+      background: #1a1a1a;
+      padding: 40px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #00ff87;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: white;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00ff87;
+      color: black;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover { background: #00cc6a; }
+
+    #message {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 16px;
+      color: #888;
+    }
+
+    .login-link a { color: #00ff87; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>⚽ Odostats</h1>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Passwort" />
+    <input type="password" id="password2" placeholder="Passwort wiederholen" />
+    <button onclick="register()">Registrieren</button>
+    <div id="message"></div>
+    <div class="login-link">
+      Bereits ein Account? <a href="login.html">Einloggen</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    window.register = async function() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const password2 = document.getElementById('password2').value;
+      const msg = document.getElementById('message');
+
+      if (password !== password2) {
+        msg.style.color = '#ff4444';
+        msg.textContent = 'Passwörter stimmen nicht überein!';
+        return;
+      }
+
+      const { error } = await supabase.auth.signUp({ email, password });
+
+      if (error) {
+        msg.style.color = '#ff4444';
+        msg.textContent = 'Fehler: ' + error.message;
+      } else {
+        msg.style.color = '#00ff87';
+        msg.textContent = '✅ Registriert! Bitte Email bestätigen.';
+      }
+    }
+  </script>
+</body>
+</html>
