@@ -580,11 +580,20 @@ function renderMatchRow(f){
       ${f.teams.away.logo?`<img src="${f.teams.away.logo}" class="match-team-logo" onerror="this.style.display='none'">`:'<div class="match-team-logo-ph"></div>'}
       <span class="match-team-name ${hWin?'dim':''}">${f.teams.away.name}</span>
     </div>
-    <div class="match-odds-col">
-      <div class="odd-pill"><span class="odd-pill-label">1</span><span class="odd-pill-val dash" id="o1-${f.fixture.id}">–</span></div>
-      <div class="odd-pill"><span class="odd-pill-label">X</span><span class="odd-pill-val dash" id="oX-${f.fixture.id}">–</span></div>
-      <div class="odd-pill"><span class="odd-pill-label">2</span><span class="odd-pill-val dash" id="o2-${f.fixture.id}">–</span></div>
-    </div>
+   <div class="match-odds-col" onclick="event.stopPropagation();openLoginModal()" style="cursor:pointer">
+  <div class="odd-pill" style="filter:blur(3px);user-select:none">
+    <span class="odd-pill-label">1</span>
+    <span class="odd-pill-val">${(1.5+Math.random()*2).toFixed(2)}</span>
+  </div>
+  <div class="odd-pill" style="filter:blur(3px);user-select:none">
+    <span class="odd-pill-label">X</span>
+    <span class="odd-pill-val">${(2+Math.random()*2).toFixed(2)}</span>
+  </div>
+  <div class="odd-pill" style="filter:blur(3px);user-select:none">
+    <span class="odd-pill-label">2</span>
+    <span class="odd-pill-val">${(1.5+Math.random()*2).toFixed(2)}</span>
+  </div>
+</div>
   </div>`;
 }
 
@@ -933,4 +942,5 @@ setInterval(()=>{if(document.getElementById('matches-panel').style.display!=='no
 </script>
 </body>
 </html>
+
 
