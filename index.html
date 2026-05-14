@@ -579,14 +579,6 @@ async function loadAITip(){
   }
 }
 
-  if(bestTip){
-    tipText.innerHTML=bestTip.text;
-    tipConf.textContent='Quote: '+bestTip.odd+' – Konfidenz: '+bestTip.conf;
-  } else {
-    banner.style.display='none';
-  }
-}
-
 // LOAD ODDS FOR VISIBLE MATCHES
 async function loadOddsForVisible(){
   const visibleFixtures=allFixtures.filter(f=>f.fixture.status.short==='NS').slice(0,10);
