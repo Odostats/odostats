@@ -374,7 +374,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
         <div class="modal-info-box"><div class="modal-info-label">Nationality</div><div class="modal-info-val" id="pm-nat">–</div></div>
         <div class="modal-info-box"><div class="modal-info-label">Number</div><div class="modal-info-val" id="pm-num">–</div></div>
       </div>
-      <div class="pro-lock-box">
+     <div class="pro-lock-box">
   <div class="pro-lock-title">⚡ Pro Player Statistics</div>
   <div id="pm-pro-stats">
     <div class="pro-stat-row" style="grid-template-columns:repeat(3,1fr)">
@@ -386,8 +386,60 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
       <div class="pro-stat-box"><div class="pro-stat-label">Pass %</div><div class="pro-stat-val">–</div></div>
     </div>
   </div>
+
   <div class="pro-lock-title" style="margin-top:12px">📅 Letzte 5 Spiele</div>
-  <div id="pm-last5"></div>
+  <div style="position:relative;margin-bottom:10px">
+    <div style="filter:blur(4px);pointer-events:none;user-select:none">
+      <table style="width:100%;border-collapse:collapse;margin-top:6px">
+        <tr style="font-size:9px;color:var(--text3)">
+          <td style="padding:4px 6px">Stat</td>
+          <td style="text-align:center;padding:4px">Sp1</td>
+          <td style="text-align:center;padding:4px">Sp2</td>
+          <td style="text-align:center;padding:4px">Sp3</td>
+          <td style="text-align:center;padding:4px">Sp4</td>
+          <td style="text-align:center;padding:4px">Sp5</td>
+        </tr>
+        <tr style="font-size:11px;font-weight:700;color:var(--text)">
+          <td style="font-size:9px;color:var(--text3);padding:4px 6px">Schüsse</td>
+          <td style="text-align:center;color:var(--green)">3</td>
+          <td style="text-align:center;color:var(--green)">1</td>
+          <td style="text-align:center;color:var(--green)">4</td>
+          <td style="text-align:center;color:var(--green)">2</td>
+          <td style="text-align:center;color:var(--green)">0</td>
+        </tr>
+        <tr style="font-size:11px;font-weight:700">
+          <td style="font-size:9px;color:var(--text3);padding:4px 6px">Aufs Tor</td>
+          <td style="text-align:center;color:var(--green)">1</td>
+          <td style="text-align:center;color:var(--green)">0</td>
+          <td style="text-align:center;color:var(--green)">2</td>
+          <td style="text-align:center;color:var(--green)">1</td>
+          <td style="text-align:center;color:var(--green)">0</td>
+        </tr>
+        <tr style="font-size:11px;font-weight:700">
+          <td style="font-size:9px;color:var(--text3);padding:4px 6px">Fouls</td>
+          <td style="text-align:center;color:var(--green)">2</td>
+          <td style="text-align:center;color:var(--green)">0</td>
+          <td style="text-align:center;color:var(--green)">1</td>
+          <td style="text-align:center;color:var(--green)">3</td>
+          <td style="text-align:center;color:var(--green)">1</td>
+        </tr>
+        <tr style="font-size:11px;font-weight:700">
+          <td style="font-size:9px;color:var(--text3);padding:4px 6px">Pässe</td>
+          <td style="text-align:center;color:var(--green)">44</td>
+          <td style="text-align:center;color:var(--green)">38</td>
+          <td style="text-align:center;color:var(--green)">51</td>
+          <td style="text-align:center;color:var(--green)">29</td>
+          <td style="text-align:center;color:var(--green)">62</td>
+        </tr>
+      </table>
+    </div>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+      <span style="font-size:20px">🔒</span>
+      <span style="font-size:11px;font-weight:800;color:var(--green)">Pro Feature</span>
+      <span style="font-size:10px;color:var(--text2)">Letzte 5 Spiele pro Stat</span>
+    </div>
+  </div>
+
   <button class="pro-unlock-btn" onclick="openLoginModal()">Unlock Pro – CHF 9/mo</button>
 </div>
     </div>
