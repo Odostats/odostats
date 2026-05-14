@@ -960,9 +960,9 @@ async function openPlayer(enc){
       if(fx.length){
         let h='';
         fx.slice(0,5).forEach(f=>{
-          const isH=f.teams.home.id===p.playerId;
+          const isH=f.teams?.home?.id===p.playerId;
           const dt=new Date(f.fixture.date).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
-          const opp=isH?f.teams.away.name:f.teams.home.name;
+          const opp=isH?f.teams?.away?.name||'–':f.teams?.home?.name||'–';
           h+=`<div class="lm-row"><span class="lm-date">${dt}</span><span class="lm-teams">vs ${opp}</span><span class="lm-score">${f.goals.home}–${f.goals.away}</span></div>`;
         });
         document.getElementById('pm-last5').innerHTML=h;
@@ -995,24 +995,16 @@ function handleLogin(){
   document.getElementById('login-btn').textContent=email.split('@')[0];
   document.getElementById('login-btn').style.color='var(--green)';
   alert('Welcome! Login system coming soon with full database.');
-}async function loadEvents(){
+async function loadEvents(){
   const body=document.getElementById('detail-body');
   try{
-    const [evData,luData]=await Promise.all([
-      apiFetch('events=1&fixture='+currentFixtureId),
-      apiFetch('lineup=1&fixture='+currentFixtureId)
-    ]);
-    const events=evData.response||[];
-    const lu=luData.response||[];
-    const homeLogo=lu[0]?.team?.logo||'';
-    const awayLogo=lu[1]?.team?.logo||'';
-    const homeId=lu[0]?.team?.id;
+    const data=await apiFetch('events=1&fixture='+currentFixtureId);
+    const events=data.response||[];
     if(!events.length){body.innerHTML='<div class="empty">No events yet</div>';return;}
     let html='<div class="sec-title">Match Events</div>';
     events.forEach(e=>{
       const icon=e.type==='Goal'?'⚽':e.type==='Card'?(e.detail==='Red Card'?'🟥':'🟨'):e.type==='subst'?'🔄':'📌';
-      const isHome=e.team.id===homeId;
-      const logo=isHome?homeLogo:awayLogo;
+      const logo=e.team?.logo||'';
       html+=`<div class="lm-row">
         <span class="lm-date" style="color:var(--green);font-weight:700">${e.time.elapsed}'</span>
         <span style="font-size:16px">${icon}</span>
