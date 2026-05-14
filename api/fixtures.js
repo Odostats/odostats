@@ -25,7 +25,7 @@ export default async function handler(req, res) {
  } else if (q.player) {
   endpoint = `players?id=${q.player}&season=2025`;
 } else if (q.playerFixtures) {
-  endpoint = `players?id=${q.playerFixtures}&season=2025`;
+  endpoint = `fixtures?season=2025&player=${q.playerFixtures}&last=5`;
   } else if (q.events) {
   endpoint = `fixtures/events?fixture=${q.fixture}`;
   } else {
