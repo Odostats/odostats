@@ -28,6 +28,8 @@ export default async function handler(req, res) {
     endpoint = `fixtures?season=2025&player=${q.playerFixtures}&last=5`;
   } else if (q.searchPlayer) {
     endpoint = `players?search=${q.searchPlayer}&season=2025`;
+    } else if (q.teams) {
+  endpoint = `teams?league=${q.teams}&season=2025`;
   } else if (q.search) {
     endpoint = `teams?search=${q.search}`;
   } else if (q.events) {

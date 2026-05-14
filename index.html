@@ -519,6 +519,29 @@ async function loadAllMatches(){
   }catch(e){
     container.innerHTML='<div class="empty">Error: '+e.message+'</div>';
   }
+  // LOAD ALL TEAMS (cached)
+async function loadAllTeams(){
+  const cacheKey='odostats_teams';
+  const cacheDate='odostats_teams_date';
+  const today=new Date().toISOString().split('T')[0];
+  
+  // Check cache
+  const cached=localStorage.getItem(cacheKey);
+  const cachedDate=localStorage.getItem(cacheDate);
+  if(cached&&cachedDate===today){
+    const teams=JSON.parse(cached);
+    teams.forEach(t=>{if(!allTeams.find(x=>x.id===t.id))allTeams.push(t);});
+    return;
+  }
+
+  // Load fresh
+  const leagues=[2,3,39,40,61,71,78,88,94,98,103,106,113,119,128,135,140,144,169,179,197,203,207,218,253,262,307,383,848];
+  const results=await Promise.all(leagues.map(lid=>apiFetch('teams=1&league='+lid+'&season=2025').catch(()=>({response:[]}))));
+  const teams=results.flatMap(r=>r.response||[]).map(t=>({id:t.team.id,name:t.team.name,logo:t.team.logo||'',country:t.team.country||''}));
+  allTeams.push(...teams);
+  localStorage.setItem(cacheKey,JSON.stringify(teams));
+  localStorage.setItem(cacheDate,today);
+}
 }
 
 async function loadAITip(){
@@ -711,13 +734,7 @@ async function handleSearch(q){
     const ql=q.toLowerCase();
 
     // Teams aus allFixtures suchen
-    const teamMap={};
-    allFixtures.forEach(f=>{
-      [f.teams.home,f.teams.away].forEach(t=>{
-        if(t.name.toLowerCase().includes(ql)&&!teamMap[t.id])teamMap[t.id]=t;
-      });
-    });
-    const teams=Object.values(teamMap).slice(0,3);
+    const teams=allTeams.filter(t=>t.name.toLowerCase().includes(ql)).slice(0,3);
 
     // Spieler aus allPlayers suchen
     const players=allPlayers.filter(p=>p.name.toLowerCase().includes(ql)).slice(0,4);
@@ -1143,6 +1160,7 @@ async function loadEvents(){
 
 // INIT
 setupDateNav();
+loadAllTeams();
 loadAllMatches();
 setInterval(()=>{if(document.getElementById('matches-panel').style.display!=='none')loadAllMatches();},60000);
 </script>
