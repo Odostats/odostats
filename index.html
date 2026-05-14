@@ -730,8 +730,9 @@ let searchDebounce=null;
 async function handleSearch(q){
   clearTimeout(searchDebounce);
   if(q.length<2){document.getElementById('search-results').classList.remove('open');return;}
-  searchDebounce=setTimeout(()=>{
+  searchDebounce=setTimeout(async()=>{
     const results=document.getElementById('search-results');
+    if(!allTeams.length) await loadAllTeams();
     const ql=q.toLowerCase();
 
     // Teams aus allFixtures suchen
@@ -1161,8 +1162,8 @@ async function loadEvents(){
 
 // INIT
 setupDateNav();
-loadAllTeams();
 loadAllMatches();
+loadAllTeams();
 setInterval(()=>{if(document.getElementById('matches-panel').style.display!=='none')loadAllMatches();},60000);
 </script>
 </body>
