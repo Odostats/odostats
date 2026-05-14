@@ -538,7 +538,7 @@ async function loadAllTeams(){
 
   // Load fresh
   const leagues=[2,3,39,40,61,71,78,88,94,98,103,106,113,119,128,135,140,144,169,179,197,203,207,218,253,262,307,383,848];
-  const results=await Promise.all(leagues.map(lid=>apiFetch('teams=1&league='+lid+'&season=2025').catch(()=>({response:[]}))));
+ const results=await Promise.all(leagues.map(lid=>apiFetch('teams='+lid+'&season=2025').catch(()=>({response:[]}))));
   const teams=results.flatMap(r=>r.response||[]).map(t=>({id:t.team.id,name:t.team.name,logo:t.team.logo||'',country:t.team.country||''}));
   allTeams.push(...teams);
   localStorage.setItem(cacheKey,JSON.stringify(teams));
