@@ -467,6 +467,7 @@ const API_KEY='9793892ae437091b5e51ad1f076d66fe';
 let currentDate=new Date(),currentView='all',currentLeagueFilter=null;
 let currentFixtureId=null,currentLeagueId=null,currentHomeId=null,currentAwayId=null;
 let allFixtures=[],collapsedLeagues={},isLoggedIn=false,loginMode='signin';
+let allPlayers=[];
 let searchTimeout=null;
 
 // DATE NAV
@@ -669,46 +670,49 @@ let searchDebounce=null;
 async function handleSearch(q){
   clearTimeout(searchDebounce);
   if(q.length<2){document.getElementById('search-results').classList.remove('open');return;}
-  searchDebounce=setTimeout(async()=>{
-    try{
-      const [teamsData, playersData] = await Promise.all([
-        apiFetch('search='+encodeURIComponent(q)),
-        apiFetch('searchPlayer='+encodeURIComponent(q))
-      ]);
-      const results=document.getElementById('search-results');
-      const teams=teamsData.response||[];
-      const players=playersData.response||[];
-      
-      if(!teams.length && !players.length){
-        results.innerHTML='<div class="search-result-item"><span class="search-result-name">No results found</span></div>';
-        results.classList.add('open');
-        return;
-      }
-      
-      let html='';
-      teams.slice(0,3).forEach(t=>{
-        html+=`<div class="search-result-item" onclick="showTeamStats(${t.team.id},'${t.team.name.replace(/'/g,"\\'")}','${t.team.logo||''}')">
-          ${t.team.logo?`<img src="${t.team.logo}" class="search-result-logo" onerror="this.style.display='none'">`:''}
-          <div><div class="search-result-name">${t.team.name}</div><div class="search-result-sub">⚽ ${t.team.country||''}</div></div>
-        </div>`;
+  searchDebounce=setTimeout(()=>{
+    const results=document.getElementById('search-results');
+    const ql=q.toLowerCase();
+
+    // Teams aus allFixtures suchen
+    const teamMap={};
+    allFixtures.forEach(f=>{
+      [f.teams.home,f.teams.away].forEach(t=>{
+        if(t.name.toLowerCase().includes(ql)&&!teamMap[t.id])teamMap[t.id]=t;
       });
-      players.slice(0,4).forEach(p=>{
-        const pl=p.player;
-        const st=p.statistics?.[0];
-        const pd=encodeURIComponent(JSON.stringify({
-          name:pl.name,photo:pl.photo||'',num:st?.games?.number||'–',
-          pos:st?.games?.position||'–',club:st?.team?.name||'–',
-          clubLogo:st?.team?.logo||'',playerId:pl.id
-        }));
-        html+=`<div class="search-result-item" onclick="openPlayer('${pd}')">
-          ${pl.photo?`<img src="${pl.photo}" class="search-result-logo" style="border-radius:50%" onerror="this.style.display='none'">`:''}
-          <div><div class="search-result-name">${pl.name}</div><div class="search-result-sub">👤 ${st?.team?.name||''}</div></div>
-        </div>`;
-      });
-      results.innerHTML=html;
+    });
+    const teams=Object.values(teamMap).slice(0,3);
+
+    // Spieler aus allPlayers suchen
+    const players=allPlayers.filter(p=>p.name.toLowerCase().includes(ql)).slice(0,4);
+
+    if(!teams.length&&!players.length){
+      results.innerHTML='<div class="search-result-item"><span class="search-result-name">No results found</span></div>';
       results.classList.add('open');
-    }catch(e){}
-  },400);
+      return;
+    }
+
+    let html='';
+    teams.forEach(t=>{
+      html+=`<div class="search-result-item" onclick="showTeamStats(${t.id},'${t.name.replace(/'/g,"\\'")}','${t.logo||''}')">
+        ${t.logo?`<img src="${t.logo}" class="search-result-logo" onerror="this.style.display='none'">`:''}
+        <div><div class="search-result-name">${t.name}</div><div class="search-result-sub">⚽ Team</div></div>
+      </div>`;
+    });
+    players.forEach(p=>{
+      const pd=encodeURIComponent(JSON.stringify({
+        name:p.name,photo:p.photo||'',num:p.num||'–',
+        pos:p.pos||'–',club:p.club||'–',
+        clubLogo:p.clubLogo||'',playerId:p.id
+      }));
+      html+=`<div class="search-result-item" onclick="openPlayer('${pd}')">
+        ${p.photo?`<img src="${p.photo}" class="search-result-logo" style="border-radius:50%" onerror="this.style.display='none'">`:''}
+        <div><div class="search-result-name">${p.name}</div><div class="search-result-sub">👤 ${p.club||''}</div></div>
+      </div>`;
+    });
+    results.innerHTML=html;
+    results.classList.add('open');
+  },300);
 }
 function openSearch(){if(document.getElementById('search-input').value.length>=2)document.getElementById('search-results').classList.add('open');}
 function closeSearch(){document.getElementById('search-results').classList.remove('open');}
@@ -902,18 +906,19 @@ async function loadLineup(){
       }).join(' ');
     };
     const pc={G:'pG',D:'pD',M:'pM',F:'pF'};
+    const savePlayer=(p,t)=>{if(!allPlayers.find(x=>x.id===p.player.id))allPlayers.push({id:p.player.id,name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||''});};
     const rt=(t)=>{
       let h='<div class="lu-team-header">'+(t.team.logo?'<img src="'+t.team.logo+'" class="lu-crest" onerror="this.style.display=\'none\'">':'')+'<span class="lu-team-nm">'+t.team.name+'</span></div>';
       h+='<div class="formation-badge">'+(t.formation||'–')+'</div>';
       t.startXI?.forEach(p=>{
-        const icons=getEventIcons(p.player.id);
+      savePlayer(p,t);const icons=getEventIcons(p.player.id);
         const pd=encodeURIComponent(JSON.stringify({name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',playerId:p.player.id}));
         h+=`<div class="player-row" onclick="openPlayer('${pd}')"><img src="${p.player.photo||''}" class="player-photo" onerror="this.style.opacity='0.3'"><span class="player-num">${p.player.number||'–'}</span><span class="player-nm">${p.player.name}</span><span style="font-size:10px;gap:3px;display:flex">${icons}</span><span class="pos-tag ${pc[p.player.pos]||'pM'}">${p.player.pos||'–'}</span></div>`;
       });
       if(t.substitutes?.length){
         h+='<div class="sub-sep">Substitutes</div>';
         t.substitutes.forEach(p=>{
-          const icons=getEventIcons(p.player.id);
+      savePlayer(p,t);const icons=getEventIcons(p.player.id);
           const pd=encodeURIComponent(JSON.stringify({name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',playerId:p.player.id}));
           h+=`<div class="player-row" style="opacity:0.6" onclick="openPlayer('${pd}')"><img src="${p.player.photo||''}" class="player-photo" onerror="this.style.opacity='0.3'"><span class="player-num">${p.player.number||'–'}</span><span class="player-nm">${p.player.name}</span><span style="font-size:10px;gap:3px;display:flex">${icons}</span><span class="pos-tag ${pc[p.player.pos]||'pM'}">${p.player.pos||'–'}</span></div>`;
         });
