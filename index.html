@@ -375,15 +375,21 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
         <div class="modal-info-box"><div class="modal-info-label">Number</div><div class="modal-info-val" id="pm-num">–</div></div>
       </div>
       <div class="pro-lock-box">
-        <div class="pro-lock-title">🔒 Pro Player Statistics</div>
-        <div class="pro-lock-sub">Goals · Assists · Shots/game · Fouls/game · Rating · Passes · Dribbles · Tackles</div>
-        <div class="pro-stat-row">
-          <div class="pro-stat-box"><div class="pro-stat-label">Goals</div><div class="pro-stat-val">14</div></div>
-          <div class="pro-stat-box"><div class="pro-stat-label">Rating</div><div class="pro-stat-val">7.9</div></div>
-          <div class="pro-stat-box"><div class="pro-stat-label">Shots/G</div><div class="pro-stat-val">3.4</div></div>
-        </div>
-        <button class="pro-unlock-btn" onclick="openLoginModal()">Unlock Pro – CHF 9/mo</button>
-      </div>
+  <div class="pro-lock-title">⚡ Pro Player Statistics</div>
+  <div id="pm-pro-stats">
+    <div class="pro-stat-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="pro-stat-box"><div class="pro-stat-label">Schüsse</div><div class="pro-stat-val">–</div></div>
+      <div class="pro-stat-box"><div class="pro-stat-label">Aufs Tor</div><div class="pro-stat-val">–</div></div>
+      <div class="pro-stat-box"><div class="pro-stat-label">Fouls</div><div class="pro-stat-val">–</div></div>
+      <div class="pro-stat-box"><div class="pro-stat-label">Gefoult</div><div class="pro-stat-val">–</div></div>
+      <div class="pro-stat-box"><div class="pro-stat-label">Pässe</div><div class="pro-stat-val">–</div></div>
+      <div class="pro-stat-box"><div class="pro-stat-label">Pass %</div><div class="pro-stat-val">–</div></div>
+    </div>
+  </div>
+  <div class="pro-lock-title" style="margin-top:12px">📅 Letzte 5 Spiele</div>
+  <div id="pm-last5"></div>
+  <button class="pro-unlock-btn" onclick="openLoginModal()">Unlock Pro – CHF 9/mo</button>
+</div>
     </div>
   </div>
 </div>
@@ -911,20 +917,61 @@ async function openPlayer(enc){
   document.getElementById('pm-age').textContent='Loading...';
   document.getElementById('pm-nat').textContent='Loading...';
   const club=document.getElementById('pm-club');
-  club.innerHTML=(p.clubLogo?'<img src="'+p.clubLogo+'" style="width:14px;height:14px;object-fit:contain" onerror="this.style.display=\'none\'">':"")+" "+p.club;
+  club.innerHTML=(p.clubLogo?'<img src="'+p.clubLogo+'" style="width:14px;height:14px;object-fit:contain" onerror="this.style.display=\'none\'">':'')+" "+p.club;
   document.getElementById('player-modal').classList.add('open');
+  
+  // Reset pro stats
+  document.getElementById('pm-pro-stats').innerHTML='<div class="spin-wrap"><div class="spin"></div></div>';
+  document.getElementById('pm-last5').innerHTML='<div class="spin-wrap"><div class="spin"></div></div>';
+  
   if(p.playerId){
     try{
-      const data=await apiFetch('player='+p.playerId+'&season=2025');
-      const player=data.response?.[0]?.player;
+      const [basicData,statsData]=await Promise.all([
+        apiFetch('player='+p.playerId+'&season=2025'),
+        apiFetch('playerFixtures='+p.playerId)
+      ]);
+      const player=basicData.response?.[0]?.player;
+      const stats=basicData.response?.[0]?.statistics?.[0];
       if(player){
         document.getElementById('pm-age').textContent=player.age||'–';
         document.getElementById('pm-nat').textContent=player.nationality||'–';
         if(player.photo)document.getElementById('pm-photo').src=player.photo;
       }
+      if(stats){
+        const shots=stats.shots?.total||0;
+        const shotsOn=stats.shots?.on||0;
+        const fouls=stats.fouls?.committed||0;
+        const fouled=stats.fouls?.drawn||0;
+        const passes=stats.passes?.total||0;
+        const passAcc=stats.passes?.accuracy||0;
+        document.getElementById('pm-pro-stats').innerHTML=`
+          <div class="pro-stat-row" style="grid-template-columns:repeat(3,1fr)">
+            <div class="pro-stat-box"><div class="pro-stat-label">Schüsse</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${shots}</div></div>
+            <div class="pro-stat-box"><div class="pro-stat-label">Aufs Tor</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${shotsOn}</div></div>
+            <div class="pro-stat-box"><div class="pro-stat-label">Fouls</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${fouls}</div></div>
+            <div class="pro-stat-box"><div class="pro-stat-label">Gefoult</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${fouled}</div></div>
+            <div class="pro-stat-box"><div class="pro-stat-label">Pässe</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${passes}</div></div>
+            <div class="pro-stat-box"><div class="pro-stat-label">Pass %</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${passAcc}%</div></div>
+          </div>`;
+      }
+      // Last 5 games
+      const fx=statsData.response||[];
+      if(fx.length){
+        let h='';
+        fx.slice(0,5).forEach(f=>{
+          const isH=f.teams.home.id===p.playerId;
+          const dt=new Date(f.fixture.date).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
+          const opp=isH?f.teams.away.name:f.teams.home.name;
+          h+=`<div class="lm-row"><span class="lm-date">${dt}</span><span class="lm-teams">vs ${opp}</span><span class="lm-score">${f.goals.home}–${f.goals.away}</span></div>`;
+        });
+        document.getElementById('pm-last5').innerHTML=h;
+      } else {
+        document.getElementById('pm-last5').innerHTML='<div class="empty">Keine Daten</div>';
+      }
     }catch(e){
       document.getElementById('pm-age').textContent='–';
       document.getElementById('pm-nat').textContent='–';
+      document.getElementById('pm-pro-stats').innerHTML='<div class="empty">Fehler beim Laden</div>';
     }
   }
 }
@@ -949,17 +996,26 @@ function handleLogin(){
 }async function loadEvents(){
   const body=document.getElementById('detail-body');
   try{
-    const data=await apiFetch('events=1&fixture='+currentFixtureId);
-    const events=data.response||[];
+    const [evData,luData]=await Promise.all([
+      apiFetch('events=1&fixture='+currentFixtureId),
+      apiFetch('lineup=1&fixture='+currentFixtureId)
+    ]);
+    const events=evData.response||[];
+    const lu=luData.response||[];
+    const homeLogo=lu[0]?.team?.logo||'';
+    const awayLogo=lu[1]?.team?.logo||'';
+    const homeId=lu[0]?.team?.id;
     if(!events.length){body.innerHTML='<div class="empty">No events yet</div>';return;}
     let html='<div class="sec-title">Match Events</div>';
     events.forEach(e=>{
       const icon=e.type==='Goal'?'⚽':e.type==='Card'?(e.detail==='Red Card'?'🟥':'🟨'):e.type==='subst'?'🔄':'📌';
+      const isHome=e.team.id===homeId;
+      const logo=isHome?homeLogo:awayLogo;
       html+=`<div class="lm-row">
         <span class="lm-date" style="color:var(--green);font-weight:700">${e.time.elapsed}'</span>
         <span style="font-size:16px">${icon}</span>
         <span class="lm-teams">${e.player.name}${e.assist?.name?' ('+e.assist.name+')':''}</span>
-        <span style="font-size:10px;color:var(--text3)">${e.team.name}</span>
+        ${logo?`<img src="${logo}" style="width:18px;height:18px;object-fit:contain" onerror="this.style.display='none'">`:''}
       </div>`;
     });
     body.innerHTML=html;
