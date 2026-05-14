@@ -521,7 +521,6 @@ async function loadAllMatches(){
   }
 }
 
-// AI TIP
 async function loadAITip(){
   const banner=document.getElementById('ai-tip-banner');
   const tipText=document.getElementById('ai-tip-text');
@@ -537,25 +536,48 @@ async function loadAITip(){
   for(const f of upcomingGames){
     try{
       const data=await apiFetch('odds=1&fixture='+f.fixture.id);
-      const bk=data.response?.[0]?.bookmakers?.[0]?.bets?.find(b=>b.name==='Match Winner');
-      if(!bk)continue;
-      const vals=bk.values||[];
-      for(const v of vals){
-        const odd=parseFloat(v.odd);
-        if(odd>=1.30&&odd<=1.80){
-          const label=v.value==='Home'?f.teams.home.name:v.value==='Away'?f.teams.away.name:'Draw';
-          bestTip={
-            text:`<strong>${f.teams.home.name} vs ${f.teams.away.name}</strong> – ${label} als Favorit`,
-            odd:odd,
-            conf: odd<=1.50?'Hoch':odd<=1.65?'Mittel':'Moderat'
-          };
-          break;
+      const bookmaker=data.response?.[0]?.bookmakers?.[0];
+      if(!bookmaker)continue;
+      const bets=bookmaker.bets||[];
+
+      const markets=[
+        {name:'Match Winner', labels:{Home:f.teams.home.name, Away:f.teams.away.name, Draw:'Unentschieden'}},
+        {name:'Double Chance', labels:{'Home/Draw':'1X ('+f.teams.home.name+' oder Unentschieden)', 'Home/Away':'12 ('+f.teams.home.name+' oder '+f.teams.away.name+')', 'Draw/Away':'X2 (Unentschieden oder '+f.teams.away.name+')'}},
+        {name:'Goals Over/Under', labels:{'Over 2.5':'Over 2.5 Goals', 'Under 2.5':'Under 2.5 Goals'}},
+        {name:'Both Teams Score', labels:{Yes:'Beide Teams treffen', No:'Nicht beide Teams treffen'}},
+        {name:'Asian Handicap', labels:{}},
+      ];
+
+      for(const market of markets){
+        const bet=bets.find(b=>b.name===market.name);
+        if(!bet)continue;
+        for(const v of bet.values||[]){
+          const odd=parseFloat(v.odd);
+          if(odd>=1.25&&odd<=1.85){
+            const label=market.labels[v.value]||v.value;
+            bestTip={
+              text:`<strong>${f.teams.home.name} vs ${f.teams.away.name}</strong> – ${label}`,
+              odd:odd,
+              market:market.name,
+              conf:odd<=1.45?'Sehr Hoch':odd<=1.60?'Hoch':odd<=1.75?'Mittel':'Moderat'
+            };
+            break;
+          }
         }
+        if(bestTip)break;
       }
       if(bestTip)break;
       await new Promise(r=>setTimeout(r,150));
     }catch(e){}
   }
+
+  if(bestTip){
+    tipText.innerHTML=bestTip.text;
+    tipConf.textContent='Quote: '+bestTip.odd+' – Konfidenz: '+bestTip.conf;
+  } else {
+    banner.style.display='none';
+  }
+}
 
   if(bestTip){
     tipText.innerHTML=bestTip.text;
