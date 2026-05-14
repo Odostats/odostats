@@ -961,7 +961,7 @@ async function openPlayer(enc){
         let h='';
         fx.slice(0,5).forEach(f=>{
           const isH=f.teams?.home?.id===p.playerId;
-          const dt=new Date(f.fixture.date).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
+          const dt=f.fixture?.date?new Date(f.fixture.date).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'}):'–';
           const opp=isH?f.teams?.away?.name||'–':f.teams?.home?.name||'–';
           h+=`<div class="lm-row"><span class="lm-date">${dt}</span><span class="lm-teams">vs ${opp}</span><span class="lm-score">${f.goals.home}–${f.goals.away}</span></div>`;
         });
