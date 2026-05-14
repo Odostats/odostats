@@ -961,7 +961,7 @@ const stats=allStats.reduce((acc,s)=>({
           </div>`;
       }
       // Last 5 games
-      const fx=statsData.response||[];
+      const fx=[];
       if(fx.length){
         let h='';
         fx.slice(0,5).forEach(f=>{
@@ -972,7 +972,7 @@ const stats=allStats.reduce((acc,s)=>({
         });
         document.getElementById('pm-last5').innerHTML=h;
       } else {
-        document.getElementById('pm-last5').innerHTML='<div class="empty">Keine Daten</div>';
+       document.getElementById('pm-last5').innerHTML='<div class="empty">Keine Daten</div>';
      }
   }catch(e){
     console.log('Error:', e);
