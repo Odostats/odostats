@@ -968,11 +968,14 @@ async function openPlayer(enc){
         document.getElementById('pm-last5').innerHTML=h;
       } else {
         document.getElementById('pm-last5').innerHTML='<div class="empty">Keine Daten</div>';
-      }
+     }
+  }catch(e){
     console.log('Error:', e);
-document.getElementById('pm-pro-stats').innerHTML='<div class="empty">Fehler: '+e.message+'</div>';
-    }
+    document.getElementById('pm-age').textContent='–';
+    document.getElementById('pm-nat').textContent='–';
+    document.getElementById('pm-pro-stats').innerHTML='<div class="empty">Fehler: '+e.message+'</div>';
   }
+}
 }
 
 // LOGIN
