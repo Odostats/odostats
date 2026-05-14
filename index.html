@@ -519,6 +519,7 @@ async function loadAllMatches(){
   }catch(e){
     container.innerHTML='<div class="empty">Error: '+e.message+'</div>';
   }
+}
   // LOAD ALL TEAMS (cached)
 async function loadAllTeams(){
   const cacheKey='odostats_teams';
@@ -541,7 +542,6 @@ async function loadAllTeams(){
   allTeams.push(...teams);
   localStorage.setItem(cacheKey,JSON.stringify(teams));
   localStorage.setItem(cacheDate,today);
-}
 }
 
 async function loadAITip(){
