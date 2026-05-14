@@ -929,10 +929,15 @@ async function openPlayer(enc){
     try{
       const [basicData,statsData]=await Promise.all([
         apiFetch('player='+p.playerId+'&season=2025'),
-        apiFetch('playerFixtures='+p.playerId)
+       apiFetch('player='+p.playerId+'&season=2025')
       ]);
       const player=basicData.response?.[0]?.player;
-      const stats=basicData.response?.[0]?.statistics?.[0];
+      const allStats=basicData.response?.[0]?.statistics||[];
+const stats=allStats.reduce((acc,s)=>({
+  shots:{total:(acc.shots?.total||0)+(s.shots?.total||0),on:(acc.shots?.on||0)+(s.shots?.on||0)},
+  fouls:{committed:(acc.fouls?.committed||0)+(s.fouls?.committed||0),drawn:(acc.fouls?.drawn||0)+(s.fouls?.drawn||0)},
+  passes:{total:(acc.passes?.total||0)+(s.passes?.total||0),accuracy:s.passes?.accuracy||acc.passes?.accuracy||0}
+}),{});;
       if(player){
         document.getElementById('pm-age').textContent=player.age||'–';
         document.getElementById('pm-nat').textContent=player.nationality||'–';
