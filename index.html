@@ -969,10 +969,8 @@ async function openPlayer(enc){
       } else {
         document.getElementById('pm-last5').innerHTML='<div class="empty">Keine Daten</div>';
       }
-    }catch(e){
-      document.getElementById('pm-age').textContent='–';
-      document.getElementById('pm-nat').textContent='–';
-      document.getElementById('pm-pro-stats').innerHTML='<div class="empty">Fehler beim Laden</div>';
+    console.log('Error:', e);
+document.getElementById('pm-pro-stats').innerHTML='<div class="empty">Fehler: '+e.message+'</div>';
     }
   }
 }
