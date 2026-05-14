@@ -526,22 +526,43 @@ async function loadAITip(){
   const banner=document.getElementById('ai-tip-banner');
   const tipText=document.getElementById('ai-tip-text');
   const tipConf=document.getElementById('ai-tip-conf');
-  const liveGames=allFixtures.filter(f=>['1H','2H','HT'].includes(f.fixture.status.short));
-  const upcomingGames=allFixtures.filter(f=>f.fixture.status.short==='NS');
-  const targetGame=liveGames[0]||upcomingGames[0];
-  if(!targetGame){banner.style.display='none';return;}
-  const home=targetGame.teams.home.name;
-  const away=targetGame.teams.away.name;
-  const tips=[
-    {text:`<strong>${home} vs ${away}</strong> – Over 1.5 Goals looks strong based on both teams' recent form`,conf:'74%'},
-    {text:`<strong>${home} vs ${away}</strong> – Both Teams to Score is likely given H2H history`,conf:'69%'},
-    {text:`<strong>${home}</strong> have scored in 8 of last 10 home games – expect goals tonight`,conf:'71%'},
-  ];
-  const seed=new Date().toISOString().split('T')[0].replace(/-/g,'');
-const tip=tips[parseInt(seed)%tips.length];
-  tipText.innerHTML=tip.text;
-  tipConf.textContent=tip.conf+' confidence';
+  const upcomingGames=allFixtures.filter(f=>f.fixture.status.short==='NS').slice(0,15);
+  if(!upcomingGames.length){banner.style.display='none';return;}
+  
   banner.style.display='flex';
+  tipText.innerHTML='🔍 Analysiere heutige Spiele...';
+  tipConf.textContent='';
+
+  let bestTip=null;
+  for(const f of upcomingGames){
+    try{
+      const data=await apiFetch('odds=1&fixture='+f.fixture.id);
+      const bk=data.response?.[0]?.bookmakers?.[0]?.bets?.find(b=>b.name==='Match Winner');
+      if(!bk)continue;
+      const vals=bk.values||[];
+      for(const v of vals){
+        const odd=parseFloat(v.odd);
+        if(odd>=1.30&&odd<=1.80){
+          const label=v.value==='Home'?f.teams.home.name:v.value==='Away'?f.teams.away.name:'Draw';
+          bestTip={
+            text:`<strong>${f.teams.home.name} vs ${f.teams.away.name}</strong> – ${label} als Favorit`,
+            odd:odd,
+            conf: odd<=1.50?'Hoch':odd<=1.65?'Mittel':'Moderat'
+          };
+          break;
+        }
+      }
+      if(bestTip)break;
+      await new Promise(r=>setTimeout(r,150));
+    }catch(e){}
+  }
+
+  if(bestTip){
+    tipText.innerHTML=bestTip.text;
+    tipConf.textContent='Quote: '+bestTip.odd+' – Konfidenz: '+bestTip.conf;
+  } else {
+    banner.style.display='none';
+  }
 }
 
 // LOAD ODDS FOR VISIBLE MATCHES
