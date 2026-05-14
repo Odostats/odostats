@@ -671,20 +671,45 @@ async function handleSearch(q){
   if(q.length<2){document.getElementById('search-results').classList.remove('open');return;}
   searchDebounce=setTimeout(async()=>{
     try{
-      const teams=await apiFetch('search='+encodeURIComponent(q));
+      const [teamsData, playersData] = await Promise.all([
+        apiFetch('search='+encodeURIComponent(q)),
+        apiFetch('searchPlayer='+encodeURIComponent(q))
+      ]);
       const results=document.getElementById('search-results');
-      const items=teams.response||[];
-      if(!items.length){results.innerHTML='<div class="search-result-item"><span class="search-result-name">No results found</span></div>';results.classList.add('open');return;}
-      results.innerHTML=items.slice(0,6).map(t=>`
-        <div class="search-result-item" onclick="showTeamStats(${t.team.id},'${t.team.name.replace(/'/g,"\\'")}','${t.team.logo||''}')">
+      const teams=teamsData.response||[];
+      const players=playersData.response||[];
+      
+      if(!teams.length && !players.length){
+        results.innerHTML='<div class="search-result-item"><span class="search-result-name">No results found</span></div>';
+        results.classList.add('open');
+        return;
+      }
+      
+      let html='';
+      teams.slice(0,3).forEach(t=>{
+        html+=`<div class="search-result-item" onclick="showTeamStats(${t.team.id},'${t.team.name.replace(/'/g,"\\'")}','${t.team.logo||''}')">
           ${t.team.logo?`<img src="${t.team.logo}" class="search-result-logo" onerror="this.style.display='none'">`:''}
-          <div><div class="search-result-name">${t.team.name}</div><div class="search-result-sub">${t.team.country||''}</div></div>
-        </div>`).join('');
+          <div><div class="search-result-name">${t.team.name}</div><div class="search-result-sub">⚽ ${t.team.country||''}</div></div>
+        </div>`;
+      });
+      players.slice(0,4).forEach(p=>{
+        const pl=p.player;
+        const st=p.statistics?.[0];
+        const pd=encodeURIComponent(JSON.stringify({
+          name:pl.name,photo:pl.photo||'',num:st?.games?.number||'–',
+          pos:st?.games?.position||'–',club:st?.team?.name||'–',
+          clubLogo:st?.team?.logo||'',playerId:pl.id
+        }));
+        html+=`<div class="search-result-item" onclick="openPlayer('${pd}')">
+          ${pl.photo?`<img src="${pl.photo}" class="search-result-logo" style="border-radius:50%" onerror="this.style.display='none'">`:''}
+          <div><div class="search-result-name">${pl.name}</div><div class="search-result-sub">👤 ${st?.team?.name||''}</div></div>
+        </div>`;
+      });
+      results.innerHTML=html;
       results.classList.add('open');
     }catch(e){}
   },400);
 }
-
 function openSearch(){if(document.getElementById('search-input').value.length>=2)document.getElementById('search-results').classList.add('open');}
 function closeSearch(){document.getElementById('search-results').classList.remove('open');}
 
