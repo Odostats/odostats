@@ -911,6 +911,7 @@ async function loadTable(){
 async function openPlayer(enc){
   const p=JSON.parse(decodeURIComponent(enc));
   document.getElementById('pm-photo').src=p.photo||'';
+  console.log('Player ID:', p.playerId);
   document.getElementById('pm-name').textContent=p.name;
   document.getElementById('pm-num').textContent='#'+p.num;
   document.getElementById('pm-pos').textContent=p.pos;
