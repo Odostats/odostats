@@ -464,7 +464,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const supabase = supabase.createClient('https://zfoovkkujobyrtyhjnxd.supabase.co', 'sb_publishable_thBaDy-exT4VjYEaRooIvA_If-AJvLv');
+ const supabaseClient = supabase.createClient('https://zfoovkkujobyrtyhjnxd.supabase.co', 'sb_publishable_thBaDy-exT4VjYEaRooIvA_If-AJvLv');
 const API_KEY='9793892ae437091b5e51ad1f076d66fe';
 let currentDate=new Date(),currentView='all',currentLeagueFilter=null;
 let currentFixtureId=null,currentLeagueId=null,currentHomeId=null,currentAwayId=null;
@@ -1141,9 +1141,9 @@ async function handleLogin(){
   try{
     let result;
     if(loginMode==='signin'){
-      result=await supabase.auth.signInWithPassword({email,password:pass});
+      result=await supabaseClient.auth.signInWithPassword({email,password:pass});
     } else {
-      result=await supabase.auth.signUp({email,password:pass});
+      result=await supabaseClient.auth.signUp({email,password:pass});
     }
     
     if(result.error)throw result.error;
@@ -1151,7 +1151,7 @@ async function handleLogin(){
     const user=result.data.user;
     if(user){
       if(loginMode==='signup'){
-        await supabase.from('profiles').upsert({id:user.id,email:user.email,is_pro:false});
+        await supabaseClient.from('profiles').upsert({id:user.id,email:user.email,is_pro:false});
       }
       isLoggedIn=true;
       document.getElementById('login-modal').classList.remove('open');
@@ -1165,7 +1165,7 @@ async function handleLogin(){
 }
 
 async function checkProStatus(userId){
-  const {data}=await supabase.from('profiles').select('is_pro,pro_until').eq('id',userId).single();
+  const {data}=await supabaseClient.from('profiles').select('is_pro,pro_until').eq('id',userId).single();
   if(data?.is_pro){
     document.getElementById('login-btn').textContent+=' ⚡';
   }
