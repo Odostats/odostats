@@ -441,7 +441,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
   </div>
 
   <div id="pm-last5" style="display:none"></div>
-  <button class="pro-unlock-btn" onclick="openLoginModal()">Unlock Pro – CHF 9/mo</button>
+  <button class="pro-unlock-btn" onclick="startCheckout()">Unlock Pro ⚡ CHF 19.90/mo</button>
 </div>
     </div>
   </div>
@@ -1126,6 +1126,20 @@ const stats=allStats.reduce((acc,s)=>({
 }
 
 // LOGIN
+async function startCheckout(){
+  if(!isLoggedIn){openLoginModal();return;}
+  const {data:{user}}=await supabaseClient.auth.getUser();
+  if(!user){openLoginModal();return;}
+  try{
+    const res=await fetch('/api/stripe-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({userId:user.id,email:user.email})
+    });
+    const {url}=await res.json();
+    if(url)window.location.href=url;
+  }catch(e){alert('Fehler: '+e.message);}
+}
 function openLoginModal(){document.getElementById('login-modal').classList.add('open');}
 function toggleLoginMode(){
   loginMode=loginMode==='signin'?'signup':'signin';
