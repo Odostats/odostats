@@ -256,7 +256,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
   <div class="topbar-divider"></div>
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
-    <input class="search-input" placeholder="Search team or player..." id="search-input" oninput="handleSearch(this.value)" onfocus="openSearch()" onblur="setTimeout(closeSearch,200)">
+   <input class="search-input" placeholder="Search team or player..." id="search-input" autocomplete="new-password" readonly oninput="handleSearch(this.value)" onfocus="this.removeAttribute('readonly');openSearch()" onblur="this.setAttribute('readonly',true);setTimeout(closeSearch,200)">
     <div class="search-results" id="search-results"></div>
   </div>
   <div class="topbar-right">
