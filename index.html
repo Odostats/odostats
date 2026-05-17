@@ -1117,7 +1117,7 @@ const fx = last5Data.response || [];
       } else {
        document.getElementById('pm-last5').innerHTML='<div class="empty">Keine Daten</div>';
      }
-  }catch(e){
+    }catch(e){
     console.log('Error:', e);
     document.getElementById('pm-age').textContent='–';
     document.getElementById('pm-nat').textContent='–';
@@ -1139,6 +1139,7 @@ async function startCheckout(){
     const {url}=await res.json();
     if(url)window.location.href=url;
   }catch(e){alert('Fehler: '+e.message);}
+}
 }
 function openLoginModal(){document.getElementById('login-modal').classList.add('open');}
 function toggleLoginMode(){
