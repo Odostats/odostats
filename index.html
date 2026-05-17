@@ -469,7 +469,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
 const API_KEY='9793892ae437091b5e51ad1f076d66fe';
 let currentDate=new Date(),currentView='all',currentLeagueFilter=null;
 let currentFixtureId=null,currentLeagueId=null,currentHomeId=null,currentAwayId=null;
-let allFixtures=[],collapsedLeagues={},isLoggedIn=false,loginMode='signin';
+let allFixtures=[],collapsedLeagues={},isLoggedIn=false,loginMode='signin',isPro=false;
 let allPlayers=[];
 let allTeams=[];
 let searchTimeout=null;
@@ -705,23 +705,24 @@ function renderMatchRow(f){
       ${f.teams.away.logo?`<img src="${f.teams.away.logo}" class="match-team-logo" onerror="this.style.display='none'">`:'<div class="match-team-logo-ph"></div>'}
       <span class="match-team-name ${hWin?'dim':''}">${f.teams.away.name}</span>
     </div>
-   <div class="match-odds-col" style="position:relative;cursor:pointer" onclick="event.stopPropagation();openLoginModal()">
-  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;flex-direction:column;gap:1px">
+<div class="match-odds-col" style="position:relative;cursor:pointer" onclick="event.stopPropagation();${isPro?'':'openLoginModal()'}">
+  ${!isPro?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;flex-direction:column;gap:1px">
     <span style="font-size:10px">🔒</span>
     <span style="font-size:8px;font-weight:800;color:var(--green)">PRO</span>
-  </div>
-  <div class="odd-pill" style="filter:blur(3px);user-select:none">
+  </div>`:''}
+  <div class="odd-pill" style="${isPro?'':'filter:blur(3px);user-select:none'}">
     <span class="odd-pill-label">1</span>
-    <span class="odd-pill-val">${(1.5+Math.random()*2).toFixed(2)}</span>
+    <span class="odd-pill-val" id="o1-${f.fixture.id}">${(1.5+Math.random()*2).toFixed(2)}</span>
   </div>
-  <div class="odd-pill" style="filter:blur(3px);user-select:none">
+  <div class="odd-pill" style="${isPro?'':'filter:blur(3px);user-select:none'}">
     <span class="odd-pill-label">X</span>
-    <span class="odd-pill-val">${(2+Math.random()*2).toFixed(2)}</span>
+    <span class="odd-pill-val" id="oX-${f.fixture.id}">${(2+Math.random()*2).toFixed(2)}</span>
   </div>
-  <div class="odd-pill" style="filter:blur(3px);user-select:none">
+  <div class="odd-pill" style="${isPro?'':'filter:blur(3px);user-select:none'}">
     <span class="odd-pill-label">2</span>
-    <span class="odd-pill-val">${(1.5+Math.random()*2).toFixed(2)}</span>
+    <span class="odd-pill-val" id="o2-${f.fixture.id}">${(1.5+Math.random()*2).toFixed(2)}</span>
   </div>
+</div>
 </div>
   </div>`;
 }
@@ -1183,6 +1184,9 @@ async function checkProStatus(userId){
   const {data}=await supabaseClient.from('profiles').select('is_pro,pro_until').eq('id',userId).single();
   if(data?.is_pro){
     document.getElementById('login-btn').textContent+=' ⚡';
+    isLoggedIn=true;
+    isPro=true;
+    renderMatches();
   }
 }
 async function loadEvents(){
