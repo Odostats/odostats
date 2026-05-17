@@ -434,15 +434,14 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
         </tr>
       </table>
     </div>
-    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
-      <span style="font-size:20px">🔒</span>
-      <span style="font-size:11px;font-weight:800;color:var(--green)">Pro Feature</span>
-      <span style="font-size:10px;color:var(--text2)">Letzte 5 Spiele pro Stat</span>
-    </div>
-  </div>
+    <div id="pm-lock-box" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+  <span style="font-size:20px">🔒</span>
+  <span style="font-size:11px;font-weight:800;color:var(--green)">Pro Feature</span>
+  <span style="font-size:10px;color:var(--text2)">Letzte 5 Spiele pro Stat</span>
+</div>
 
-  <div id="pm-last5" style="display:none"></div>
-  <button class="pro-unlock-btn" onclick="startCheckout()">Unlock Pro ⚡ CHF 19.90/mo</button>
+<div id="pm-last5"></div>
+<button class="pro-unlock-btn" id="pm-unlock-btn" onclick="startCheckout()">Unlock Pro ⚡ CHF 19.90/mo</button>
 </div>
     </div>
   </div>
@@ -1188,7 +1187,10 @@ async function checkProStatus(userId){
     isLoggedIn=true;
     isPro=true;
     renderMatches();
-  }
+}
+    document.getElementById('pm-lock-box')?.style.setProperty('display','none');
+document.getElementById('pm-unlock-btn')?.style.setProperty('display','none');
+document.getElementById('pm-last5')?.style.setProperty('display','block');
 }
 async function loadEvents(){
   const body=document.getElementById('detail-body');
