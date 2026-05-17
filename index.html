@@ -443,24 +443,10 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
 <div id="pm-last5"></div>
 <button class="pro-unlock-btn" id="pm-unlock-btn" onclick="startCheckout()">Unlock Pro ⚡ CHF 19.90/mo</button>
 </div>
+</div>
     </div>
   </div>
 </div>
-
-<!-- LOGIN MODAL -->
-<div class="modal-bg" id="login-modal" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="login-modal-box">
-    <div class="login-modal-header">
-      <div class="login-modal-title">Welcome to OdoStats</div>
-      <div class="login-modal-sub" id="login-modal-sub">Sign in to your account</div>
-    </div>
-    <div class="modal-body">
-      <input class="login-input" type="email" placeholder="Email address" id="login-email">
-      <input class="login-input" type="password" placeholder="Password" id="login-password">
-      <button class="login-submit-btn" onclick="handleLogin()">Sign In</button>
-      <div class="login-switch">Don't have an account? <span onclick="toggleLoginMode()">Sign up free</span></div>
-    </div>
-  </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -1223,6 +1209,21 @@ setInterval(()=>{if(document.getElementById('matches-panel').style.display!=='no
   <a href="/legal.html" style="color:var(--green);text-decoration:none">Impressum & Datenschutz</a> · 
   <a href="/legal.html#agb" style="color:var(--green);text-decoration:none">AGB</a> · 
   <a href="/legal.html#disclaimer" style="color:var(--green);text-decoration:none">Disclaimer</a>
+</div>
+<!-- LOGIN MODAL -->
+<div class="modal-bg" id="login-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="login-modal-box">
+    <div class="login-modal-header">
+      <div class="login-modal-title">Welcome to OdoStats</div>
+      <div class="login-modal-sub" id="login-modal-sub">Sign in to your account</div>
+    </div>
+    <div class="modal-body">
+      <input class="login-input" type="email" placeholder="Email address" id="login-email">
+      <input class="login-input" type="password" placeholder="Password" id="login-password">
+      <button class="login-submit-btn" onclick="handleLogin()">Sign In</button>
+      <div class="login-switch">Don't have an account? <span onclick="toggleLoginMode()">Sign up free</span></div>
+    </div>
+  </div>
 </div>
 </body>
 </html>
