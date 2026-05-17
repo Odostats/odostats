@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       }],
       success_url: 'https://odostats.vercel.app?pro=success&userId='+userId,
       cancel_url: 'https://odostats.vercel.app?pro=cancel',
-      metadata: { userId },
+     metadata: { supabase_user_id: userId },
     });
     
     res.status(200).json({ url: session.url });
