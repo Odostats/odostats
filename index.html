@@ -951,7 +951,7 @@ async function loadLineup(){
       }).join(' ');
     };
     const pc={G:'pG',D:'pD',M:'pM',F:'pF'};
-    const savePlayer=(p,t)=>{if(!allPlayers.find(x=>x.id===p.player.id))allPlayers.push({id:p.player.id,name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||''});};
+    const savePlayer=(p,t)=>{if(!allPlayers.find(x=>x.id===p.player.id))allPlayers.push({id:p.player.id,name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',teamId:t.team.id});
     const rt=(t)=>{
       let h='<div class="lu-team-header">'+(t.team.logo?'<img src="'+t.team.logo+'" class="lu-crest" onerror="this.style.display=\'none\'">':'')+'<span class="lu-team-nm">'+t.team.name+'</span></div>';
       h+='<div class="formation-badge">'+(t.formation||'–')+'</div>';
@@ -1089,15 +1089,15 @@ const stats=allStats.reduce((acc,s)=>({
           </div>`;
       }
       // Last 5 games
-const last5Data = await apiFetch('fixtures=1&player='+p.playerId+'&season=2025&last=5');
+const last5Data = await apiFetch('team='+p.teamId+'&last=5&season=2025');
 const fx = last5Data.response || [];
       if(fx.length){
         let h='';
         fx.slice(0,5).forEach(f=>{
-          const isH=f.teams?.home?.id===p.playerId;
+          const isH=f.teams?.home?.id===p.teamId;
           const dt=f.fixture?.date?new Date(f.fixture.date).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'}):'–';
           const opp=isH?f.teams?.away?.name||'–':f.teams?.home?.name||'–';
-          h+=`<div class="lm-row"><span class="lm-date">${dt}</span><span class="lm-teams">${f.teams?.home?.name} vs ${f.teams?.away?.name}</span><span class="lm-score">${f.goals?.home??'-'} – ${f.goals?.away??'-'}</span></div>`;
+          h+=`<div class="lm-row"><span class="lm-date">${dt}</span><span class="lm-teams">${f.teams?.home?.name||'–'} vs ${f.teams?.away?.name||'–'}</span><span class="lm-score">${f.goals?.home??'-'} – ${f.goals?.away??'-'}</span></div>`;
         });
         document.getElementById('pm-last5').innerHTML=h;
       } else {
