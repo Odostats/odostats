@@ -1187,10 +1187,10 @@ async function checkProStatus(userId){
     isLoggedIn=true;
     isPro=true;
     renderMatches();
-}
     document.getElementById('pm-lock-box')?.style.setProperty('display','none');
-document.getElementById('pm-unlock-btn')?.style.setProperty('display','none');
-document.getElementById('pm-last5')?.style.setProperty('display','block');
+    document.getElementById('pm-unlock-btn')?.style.setProperty('display','none');
+    document.getElementById('pm-last5')?.style.setProperty('display','block');
+  }
 }
 async function loadEvents(){
   const body=document.getElementById('detail-body');
