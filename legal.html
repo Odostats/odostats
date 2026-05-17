@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rechtliches – OdoStats</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060b12;--bg2:#0c1220;--bg3:#111827;--bg4:#1a2537;
+  --border:#1e2d42;--border2:#253548;
+  --text:#f0f6ff;--text2:#8ba3c0;--text3:#4a607a;
+  --green:#00d68f;--blue:#4d8eff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.7}
+a{color:var(--green);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.topbar{height:50px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;position:fixed;top:0;left:0;right:0;z-index:200}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;cursor:pointer;text-decoration:none}
+.logo-o{color:#fff}.logo-s{color:var(--green)}
+.back-btn{margin-left:auto;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all 0.15s}
+.back-btn:hover{color:var(--text);border-color:var(--green);text-decoration:none}
+
+.container{max-width:800px;margin:0 auto;padding:80px 24px 60px}
+
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:800;color:#fff;margin-bottom:8px}
+.page-sub{font-size:13px;color:var(--text3);margin-bottom:48px}
+
+.tabs{display:flex;gap:4px;margin-bottom:40px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{padding:10px 18px;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap;margin-bottom:-1px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+
+.section{display:none}
+.section.active{display:block}
+
+h2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#fff;margin:32px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h2:first-child{margin-top:0}
+h3{font-size:14px;font-weight:700;color:var(--text);margin:20px 0 8px}
+p{color:var(--text2);margin-bottom:12px}
+ul{color:var(--text2);padding-left:20px;margin-bottom:12px}
+ul li{margin-bottom:6px}
+
+.info-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:20px}
+.info-box p{margin:0}
+.warning-box{background:rgba(255,176,32,0.08);border:1px solid rgba(255,176,32,0.3);border-radius:10px;padding:16px 20px;margin-bottom:20px}
+.warning-box p{margin:0;color:#ffb020}
+.green-box{background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.2);border-radius:10px;padding:16px 20px;margin-bottom:20px}
+.green-box p{margin:0;color:var(--green)}
+
+.last-updated{font-size:11px;color:var(--text3);margin-top:40px;padding-top:16px;border-top:1px solid var(--border)}
+
+.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:14px 24px;display:flex;align-items:center;gap:16px;z-index:1000;flex-wrap:wrap}
+.cookie-text{font-size:12px;color:var(--text2);flex:1;min-width:200px}
+.cookie-text a{color:var(--green)}
+.cookie-btns{display:flex;gap:8px;flex-shrink:0}
+.cookie-accept{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer}
+.cookie-decline{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="logo" href="/"><span class="logo-o">Odo</span><span class="logo-s">Stats</span></a>
+  <a class="back-btn" href="/">← Zurück</a>
+</div>
+
+<div class="container">
+  <div class="page-title">Rechtliches</div>
+  <div class="page-sub">Impressum · AGB · Datenschutz · Disclaimer</div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('impressum')">📋 Impressum</div>
+    <div class="tab" onclick="showTab('agb')">📄 AGB</div>
+    <div class="tab" onclick="showTab('datenschutz')">🔒 Datenschutz</div>
+    <div class="tab" onclick="showTab('disclaimer')">⚠️ Disclaimer</div>
+  </div>
+
+  <!-- IMPRESSUM -->
+  <div class="section active" id="impressum">
+    <h2>Impressum</h2>
+    <div class="info-box">
+      <p><strong>Betreiber dieser Website:</strong><br><br>
+      Pascal Fässler<br>
+      8842 Unteriberg<br>
+      Schweiz<br><br>
+      <strong>E-Mail:</strong> <a href="mailto:info@odostats.com">info@odostats.com</a><br>
+      <strong>Website:</strong> <a href="https://odostats.com">odostats.com</a><br><br>
+      <strong>Unternehmensform:</strong> Einzelunternehmen<br>
+      <strong>Mehrwertsteuerpflichtig:</strong> Nein (Umsatz unter CHF 100'000)</p>
+    </div>
+
+    <h2>Haftungsausschluss</h2>
+    <p>Die Inhalte dieser Website wurden mit grösster Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann jedoch keine Gewähr übernommen werden.</p>
+    <p>Als Diensteanbieter bin ich gemäss Art. 12 ff. TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.</p>
+
+    <h2>Urheberrecht</h2>
+    <p>Die durch den Betreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem schweizerischen Urheberrecht. Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung ausserhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des Betreibers.</p>
+
+    <div class="last-updated">Letzte Aktualisierung: Mai 2025</div>
+  </div>
+
+  <!-- AGB -->
+  <div class="section" id="agb">
+    <h2>Allgemeine Geschäftsbedingungen (AGB)</h2>
+    <p>Diese AGB gelten für die Nutzung der Plattform OdoStats (odostats.com), betrieben von Pascal Fässler, Waagtalstrasse 62, 8842 Unteriberg, Schweiz.</p>
+
+    <h2>1. Leistungsbeschreibung</h2>
+    <p>OdoStats ist eine digitale Plattform für Fussball-Analysen, Statistiken und KI-gestützte Spielvoraussagen. Die Plattform bietet:</p>
+    <ul>
+      <li>Kostenlose Grundfunktionen (Spielübersichten, Livescores)</li>
+      <li>Pro-Abo mit erweiterten Statistiken, Spieleranalysen und KI-Tipps</li>
+    </ul>
+
+    <h2>2. Pro-Abonnement</h2>
+    <h3>2.1 Preis & Laufzeit</h3>
+    <p>Das Pro-Abonnement kostet CHF 19.90 pro Monat. Die Abrechnung erfolgt monatlich im Voraus. Das Abonnement verlängert sich automatisch, sofern es nicht gekündigt wird.</p>
+
+    <h3>2.2 Kündigung</h3>
+    <p>Das Pro-Abonnement kann jederzeit zum Ende der aktuellen Abrechnungsperiode gekündigt werden. Eine Rückerstattung bereits bezahlter Beträge erfolgt nicht, ausser bei technischen Fehlern auf unserer Seite.</p>
+
+    <h3>2.3 Zahlung</h3>
+    <p>Die Zahlung erfolgt über Stripe. Akzeptierte Zahlungsmittel: Kreditkarte, TWINT, SEPA. Alle Preise in CHF inkl. MwSt. (sofern anwendbar).</p>
+
+    <h2>3. Nutzungsbedingungen</h2>
+    <ul>
+      <li>Mindestalter: 18 Jahre</li>
+      <li>Ein Konto pro Person</li>
+      <li>Kein Weiterverkauf von Inhalten oder Zugangsdaten</li>
+      <li>Keine automatisierte Datenabfrage (Scraping)</li>
+    </ul>
+
+    <h2>4. Verfügbarkeit</h2>
+    <p>Wir bemühen uns um eine hohe Verfügbarkeit der Plattform, können jedoch keine 100%-ige Uptime garantieren. Bei geplanten Wartungsarbeiten werden Nutzer informiert.</p>
+
+    <h2>5. Haftungsbeschränkung</h2>
+    <p>OdoStats haftet nicht für Schäden, die durch die Nutzung der KI-Tipps oder Statistiken entstehen. Alle Inhalte dienen ausschliesslich Informationszwecken.</p>
+
+    <h2>6. Änderungen der AGB</h2>
+    <p>Wir behalten uns vor, diese AGB jederzeit zu ändern. Nutzer werden per E-Mail informiert. Die weitere Nutzung nach Änderung gilt als Zustimmung.</p>
+
+    <h2>7. Anwendbares Recht</h2>
+    <p>Es gilt Schweizer Recht. Gerichtsstand ist Schwyz, Schweiz.</p>
+
+    <div class="last-updated">Letzte Aktualisierung: Mai 2025</div>
+  </div>
+
+  <!-- DATENSCHUTZ -->
+  <div class="section" id="datenschutz">
+    <h2>Datenschutzerklärung</h2>
+    <p>Diese Datenschutzerklärung informiert über die Verarbeitung personenbezogener Daten auf OdoStats gemäss dem Schweizer Datenschutzgesetz (DSG) und der EU-DSGVO.</p>
+
+    <h2>1. Verantwortlicher</h2>
+    <div class="info-box">
+      <p>Pascal Fässler<br>
+      8842 Unteriberg, Schweiz<br>
+      E-Mail: <a href="mailto:info@odostats.com">info@odostats.com</a></p>
+    </div>
+
+    <h2>2. Welche Daten wir erheben</h2>
+    <h3>Bei der Registrierung:</h3>
+    <ul>
+      <li>E-Mail-Adresse</li>
+      <li>Passwort (verschlüsselt gespeichert)</li>
+    </ul>
+    <h3>Bei der Zahlung (über Stripe):</h3>
+    <ul>
+      <li>Zahlungsdaten (werden direkt von Stripe verarbeitet, nicht bei uns gespeichert)</li>
+      <li>Rechnungsadresse (optional)</li>
+    </ul>
+    <h3>Automatisch erfasste Daten:</h3>
+    <ul>
+      <li>IP-Adresse (anonymisiert)</li>
+      <li>Browser-Typ, Betriebssystem</li>
+      <li>Nutzungsverhalten (Seitenaufrufe)</li>
+    </ul>
+
+    <h2>3. Zweck der Datenverarbeitung</h2>
+    <ul>
+      <li>Bereitstellung des Dienstes und Pro-Abonnements</li>
+      <li>Kommunikation mit Nutzern (Support, Updates)</li>
+      <li>Abrechnung und Zahlungsabwicklung</li>
+      <li>Verbesserung der Plattform</li>
+    </ul>
+
+    <h2>4. Drittanbieter</h2>
+    <h3>Supabase (Authentifizierung & Datenbank)</h3>
+    <p>Wir nutzen Supabase für Nutzerkonten und Datenspeicherung. Server in der EU. Datenschutzrichtlinie: <a href="https://supabase.com/privacy" target="_blank">supabase.com/privacy</a></p>
+
+    <h3>Stripe (Zahlungsabwicklung)</h3>
+    <p>Zahlungen werden über Stripe verarbeitet. Stripe ist PCI-DSS-zertifiziert. Datenschutzrichtlinie: <a href="https://stripe.com/privacy" target="_blank">stripe.com/privacy</a></p>
+
+    <h3>API-Football (Sportdaten)</h3>
+    <p>Fussballdaten werden von API-Football bezogen. Es werden keine personenbezogenen Daten übermittelt.</p>
+
+    <h2>5. Cookies</h2>
+    <p>Wir verwenden nur technisch notwendige Cookies für die Authentifizierung (Session-Cookie). Es werden keine Tracking- oder Werbe-Cookies eingesetzt.</p>
+
+    <h2>6. Deine Rechte</h2>
+    <p>Du hast das Recht auf:</p>
+    <ul>
+      <li>Auskunft über deine gespeicherten Daten</li>
+      <li>Berichtigung falscher Daten</li>
+      <li>Löschung deines Kontos und aller Daten</li>
+      <li>Datenübertragbarkeit</li>
+    </ul>
+    <p>Anfragen an: <a href="mailto:info@odostats.com">info@odostats.com</a></p>
+
+    <h2>7. Datensicherheit</h2>
+    <p>Alle Daten werden verschlüsselt übertragen (HTTPS/TLS). Passwörter werden gehasht gespeichert. Zahlungsdaten werden nicht bei uns gespeichert.</p>
+
+    <h2>8. Speicherdauer</h2>
+    <p>Kontodaten werden so lange gespeichert, wie das Konto aktiv ist. Nach Konto-Löschung werden alle Daten innerhalb von 30 Tagen gelöscht, sofern keine gesetzliche Aufbewahrungspflicht besteht.</p>
+
+    <div class="last-updated">Letzte Aktualisierung: Mai 2025</div>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="section" id="disclaimer">
+    <h2>Disclaimer & Risikohinweise</h2>
+
+    <div class="warning-box">
+      <p>⚠️ <strong>Wichtig:</strong> OdoStats ist eine Analyse- und Informationsplattform. Wir vermitteln keine Wetten und sind kein Wettanbieter.</p>
+    </div>
+
+    <h2>KI-Tipps & Analysen</h2>
+    <div class="green-box">
+      <p>🤖 Alle KI-generierten Tipps und Analysen basieren auf historischen Daten und statistischen Modellen. Sie stellen <strong>keine Wettempfehlungen</strong> dar und garantieren keine Gewinne.</p>
+    </div>
+    <ul>
+      <li>KI-Tipps sind rein informativ und basieren auf Wahrscheinlichkeiten</li>
+      <li>Vergangene Ergebnisse garantieren keine zukünftigen Resultate</li>
+      <li>Alle Analysen können Fehler enthalten</li>
+      <li>Nutze Tipps nie als alleinige Grundlage für finanzielle Entscheidungen</li>
+    </ul>
+
+    <h2>Glücksspiel-Hinweise</h2>
+    <div class="warning-box">
+      <p>🔞 <strong>18+ Nur für Erwachsene.</strong> Glücksspiel kann süchtig machen. Spiele verantwortungsvoll.</p>
+    </div>
+    <ul>
+      <li>Setze nur Beträge ein, deren Verlust du dir leisten kannst</li>
+      <li>Glücksspiel ist keine Einkommensquelle</li>
+      <li>Bei Spielsucht: <a href="https://www.sos-spielsucht.ch" target="_blank">sos-spielsucht.ch</a> (CH) oder <a href="https://www.bundeszentrale-fuer-gesundheitliche-aufklaerung.de" target="_blank">bzga.de</a> (DE)</li>
+    </ul>
+
+    <h2>Quoten & Wettdaten</h2>
+    <p>Angezeigte Quoten dienen nur zur Information. OdoStats ist kein Wettanbieter und vermittelt keine Wetten. Für aktuelle Quoten besuche lizenzierte Wettanbieter.</p>
+
+    <h2>Haftungsausschluss</h2>
+    <p>OdoStats und Pascal Fässler übernehmen keinerlei Haftung für:</p>
+    <ul>
+      <li>Finanzielle Verluste durch Nutzung der KI-Tipps</li>
+      <li>Falsche oder veraltete Statistiken</li>
+      <li>Entscheidungen, die auf Basis unserer Inhalte getroffen werden</li>
+      <li>Ausfälle oder Fehler der Plattform</li>
+    </ul>
+
+    <div class="green-box">
+      <p>✅ OdoStats ist eine legale Informationsplattform gemäss Schweizer Recht. Wir halten alle geltenden Gesetze ein und betreiben kein lizenzpflichtiges Glücksspiel.</p>
+    </div>
+
+    <div class="last-updated">Letzte Aktualisierung: Mai 2025</div>
+  </div>
+</div>
+
+<!-- COOKIE BANNER -->
+<div class="cookie-banner" id="cookie-banner">
+  <div class="cookie-text">
+    Wir verwenden nur technisch notwendige Cookies. Keine Tracking-Cookies. 
+    <a href="#" onclick="showTab('datenschutz');document.getElementById('cookie-banner').style.display='none'">Datenschutz</a>
+  </div>
+  <div class="cookie-btns">
+    <button class="cookie-decline" onclick="document.getElementById('cookie-banner').style.display='none'">Ablehnen</button>
+    <button class="cookie-accept" onclick="document.getElementById('cookie-banner').style.display='none'">Akzeptieren ✓</button>
+  </div>
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const tabs=['impressum','agb','datenschutz','disclaimer'];
+  document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Check cookie consent
+if(localStorage.getItem('cookieConsent')){
+  document.getElementById('cookie-banner').style.display='none';
+}
+document.querySelectorAll('.cookie-btns button').forEach(b=>{
+  b.addEventListener('click',()=>localStorage.setItem('cookieConsent','true'));
+});
+
+// Show tab from URL hash
+if(window.location.hash){
+  const tab=window.location.hash.replace('#','');
+  if(['impressum','agb','datenschutz','disclaimer'].includes(tab))showTab(tab);
+}
+</script>
+</body>
+</html>
