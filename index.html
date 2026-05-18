@@ -957,14 +957,14 @@ async function loadLineup(){
       h+='<div class="formation-badge">'+(t.formation||'–')+'</div>';
       t.startXI?.forEach(p=>{
       savePlayer(p,t);const icons=getEventIcons(p.player.id);
-        const pd=encodeURIComponent(JSON.stringify({name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',playerId:p.player.id}));
+        const pd=encodeURIComponent(JSON.stringify({name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',playerId:p.player.id,teamId:t.team.id}));
         h+=`<div class="player-row" onclick="openPlayer('${pd}')"><img src="${p.player.photo||''}" class="player-photo" onerror="this.style.opacity='0.3'"><span class="player-num">${p.player.number||'–'}</span><span class="player-nm">${p.player.name}</span><span style="font-size:10px;gap:3px;display:flex">${icons}</span><span class="pos-tag ${pc[p.player.pos]||'pM'}">${p.player.pos||'–'}</span></div>`;
       });
       if(t.substitutes?.length){
         h+='<div class="sub-sep">Substitutes</div>';
         t.substitutes.forEach(p=>{
       savePlayer(p,t);const icons=getEventIcons(p.player.id);
-          const pd=encodeURIComponent(JSON.stringify({name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',playerId:p.player.id}));
+          const pd=encodeURIComponent(JSON.stringify({name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',playerId:p.player.id,teamId:t.team.id}));
           h+=`<div class="player-row" style="opacity:0.6" onclick="openPlayer('${pd}')"><img src="${p.player.photo||''}" class="player-photo" onerror="this.style.opacity='0.3'"><span class="player-num">${p.player.number||'–'}</span><span class="player-nm">${p.player.name}</span><span style="font-size:10px;gap:3px;display:flex">${icons}</span><span class="pos-tag ${pc[p.player.pos]||'pM'}">${p.player.pos||'–'}</span></div>`;
         });
       }
