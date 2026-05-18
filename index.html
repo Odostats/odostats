@@ -1095,8 +1095,9 @@ if(fx.length && isPro){
   const statRows = {shots:[],shotsOn:[],fouls:[],fouled:[],passes:[]};
   for(const f of fx.slice(0,5)){
     try{
-      const sd = await apiFetch('stats=1&fixture='+f.fixture.id+'&player='+p.playerId);
-      const st = sd.response?.[0]?.statistics?.[0] || {};
+      const sd = await apiFetch('playerStats=1&fixture='+f.fixture.id);
+const teamData = sd.response?.find(t=>t.players?.find(pl=>pl.player.id===p.playerId));
+const st = teamData?.players?.find(pl=>pl.player.id===p.playerId)?.statistics?.[0] || {};
       statRows.shots.push(st.shots?.total??'–');
       statRows.shotsOn.push(st.shots?.on??'–');
       statRows.fouls.push(st.fouls?.committed??'–');
