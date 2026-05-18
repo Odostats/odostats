@@ -1017,7 +1017,7 @@ async function loadLast(){
       return h;
     };
 
-    +e.message+'</div>';}
+  }catch(e){body.innerHTML='<div class="empty">Error: '+e.message+'</div>';}
 }
 
 async function loadTable(){
@@ -1125,6 +1125,7 @@ if(fx.length && isPro){
 } else {
   document.getElementById('pm-last5').innerHTML='<div class="empty">Keine Daten</div>';
 }
+ 
     }catch(e){
     console.log('Error:', e);
     document.getElementById('pm-age').textContent='–';
