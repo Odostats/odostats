@@ -951,7 +951,7 @@ async function loadLineup(){
       }).join(' ');
     };
     const pc={G:'pG',D:'pD',M:'pM',F:'pF'};
-    const savePlayer=(p,t)=>{if(!allPlayers.find(x=>x.id===p.player.id))allPlayers.push({id:p.player.id,name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',teamId:t.team.id});
+    const savePlayer=(p,t)=>{if(!allPlayers.find(x=>x.id===p.player.id))allPlayers.push({id:p.player.id,name:p.player.name,photo:p.player.photo||'',num:p.player.number||'–',pos:p.player.pos||'–',club:t.team.name,clubLogo:t.team.logo||'',teamId:t.team.id})};
     const rt=(t)=>{
       let h='<div class="lu-team-header">'+(t.team.logo?'<img src="'+t.team.logo+'" class="lu-crest" onerror="this.style.display=\'none\'">':'')+'<span class="lu-team-nm">'+t.team.name+'</span></div>';
       h+='<div class="formation-badge">'+(t.formation||'–')+'</div>';
