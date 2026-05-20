@@ -561,12 +561,17 @@ async function loadOddsForVisible(){
     try{
       const data=await apiFetch('odds=1&fixture='+id);
       const bks=data.response?.[0]?.bookmakers?.[0]?.bets||[];
-      const markets=[
-        {name:'Match Winner',labels:{Home:f.teams.home.name,Draw:'X',Away:f.teams.away.name}},
-        {name:'Double Chance',labels:{'Home/Draw':'1X','Home/Away':'12','Draw/Away':'X2'}},
-        {name:'Goals Over/Under',labels:{'Over 2.5':'O2.5','Under 2.5':'U2.5'}},
-        {name:'Both Teams Score',labels:{Yes:'GG',No:'NG'}},
-      ];
+     const markets=[
+  {name:'Match Winner',labels:{Home:f.teams.home.name,Draw:'X',Away:f.teams.away.name}},
+  {name:'Double Chance',labels:{'Home/Draw':'1X','Home/Away':'12','Draw/Away':'X2'}},
+  {name:'Goals Over/Under',labels:{'Over 2.5':'O2.5','Under 2.5':'U2.5','Over 1.5':'O1.5','Under 1.5':'U1.5'}},
+  {name:'Both Teams Score',labels:{Yes:'GG',No:'NG'}},
+  {name:'Corners Over Under',labels:{'Over 9.5':'Ecken O9.5','Under 9.5':'Ecken U9.5','Over 10.5':'Ecken O10.5','Under 10.5':'Ecken U10.5'}},
+  {name:'Cards Over/Under',labels:{'Over 3.5':'Karten O3.5','Under 3.5':'Karten U3.5','Over 4.5':'Karten O4.5','Under 4.5':'Karten U4.5'}},
+  {name:'Draw No Bet',labels:{Home:f.teams.home.name+' DNB',Away:f.teams.away.name+' DNB'}},
+  {name:'Result/Total Goals',labels:{'Home/Over 2.5':f.teams.home.name+' & O2.5','Away/Over 2.5':f.teams.away.name+' & O2.5'}},
+  {name:'Total Goals/Both Teams To Score',labels:{'Over 2.5/Yes':'O2.5 & GG','Under 2.5/No':'U2.5 & NG'}},
+];
       let bestTip=null;
       for(const market of markets){
         const bet=bks.find(b=>b.name===market.name);
