@@ -589,6 +589,26 @@ async function loadOddsForVisible(){
   // Sortiere nach bester Quote und nimm Top 8
   allTips.sort((a,b)=>a.odd-b.odd);
   const bestTips=allTips.slice(0,8);
+  // Speichere Tipps in Supabase
+const today=new Date().toISOString().split('T')[0];
+for(const tip of bestTips){
+  const f=visibleFixtures.find(x=>x.fixture.id===tip.fixtureId);
+  if(!f)continue;
+  try{
+    const existing=await supabaseClient.from('tips').select('id').eq('fixture_id',tip.fixtureId).eq('tip',tip.label);
+    if(existing.data?.length===0){
+      await supabaseClient.from('tips').insert({
+        date:today,
+        fixture_id:tip.fixtureId,
+        home_team:f.teams.home.name,
+        away_team:f.teams.away.name,
+        tip:tip.label,
+        odd:tip.odd,
+        conf:tip.conf
+      });
+    }
+  }catch(e){}
+}
   const tipFixtureIds=new Set(bestTips.map(t=>t.fixtureId));
 
   // Zeige Tipps nur für ausgewählte Spiele
