@@ -673,18 +673,18 @@ function renderMatchRow(f){
       ${f.teams.away.logo?`<img src="${f.teams.away.logo}" class="match-team-logo" onerror="this.style.display='none'">`:'<div class="match-team-logo-ph"></div>'}
       <span class="match-team-name ${hWin?'dim':''}">${f.teams.away.name}</span>
     </div>
-<div class="match-odds-col" style="position:relative;cursor:pointer" onclick="event.stopPropagation()">
-  ${isPro?`<div id="tip-${f.fixture.id}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:80px">
-    <span style="font-size:9px;font-weight:800;color:var(--green)" id="tip-val-${f.fixture.id}">–</span>
-    <span style="font-size:8px;color:var(--text3)" id="tip-conf-${f.fixture.id}">–</span>
-  </div>`:`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
-    <span style="font-size:10px">🔒</span>
-    <span style="font-size:8px;font-weight:800;color:var(--green)">PRO</span>
-  </div>`}
-</div>
-</div>
+    <div class="match-odds-col" style="position:relative;cursor:pointer" onclick="event.stopPropagation()">
+      ${!isPro?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2">
+        <span style="font-size:10px">🔒</span>
+      </div>`:''}
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:80px;${!isPro?'filter:blur(4px)':''}">
+        <span style="font-size:9px;font-weight:800;color:var(--green)" id="tip-val-${f.fixture.id}">–</span>
+        <span style="font-size:8px;color:var(--text3)" id="tip-conf-${f.fixture.id}">–</span>
+      </div>
+    </div>
   </div>`;
 }
+
 
 function toggleLeague(lid){collapsedLeagues[lid]=!collapsedLeagues[lid];renderMatches();}
 function setView(view,el){currentView=view;currentLeagueFilter=null;document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');renderMatches();}
