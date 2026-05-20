@@ -646,22 +646,14 @@ function renderMatchRow(f){
       <span class="match-team-name ${hWin?'dim':''}">${f.teams.away.name}</span>
     </div>
 <div class="match-odds-col" style="position:relative;cursor:pointer" onclick="event.stopPropagation()">
-  ${!isPro?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;flex-direction:column;gap:1px">
+  ${isPro?`<div id="tip-${f.fixture.id}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:80px">
+    <span style="font-size:9px;font-weight:800;color:var(--green)" id="tip-val-${f.fixture.id}">–</span>
+    <span style="font-size:8px;color:var(--text3)" id="tip-conf-${f.fixture.id}">–</span>
+  </div>`:`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
     <span style="font-size:10px">🔒</span>
     <span style="font-size:8px;font-weight:800;color:var(--green)">PRO</span>
-  </div>`:''}
-  <div class="odd-pill" style="${isPro?'':'filter:blur(3px);user-select:none'}">
-    <span class="odd-pill-label">1</span>
-    <span class="odd-pill-val" id="o1-${f.fixture.id}">${(1.5+Math.random()*2).toFixed(2)}</span>
-  </div>
-  <div class="odd-pill" style="${isPro?'':'filter:blur(3px);user-select:none'}">
-    <span class="odd-pill-label">X</span>
-    <span class="odd-pill-val" id="oX-${f.fixture.id}">${(2+Math.random()*2).toFixed(2)}</span>
-  </div>
-  <div class="odd-pill" style="${isPro?'':'filter:blur(3px);user-select:none'}">
-    <span class="odd-pill-label">2</span>
-    <span class="odd-pill-val" id="o2-${f.fixture.id}">${(1.5+Math.random()*2).toFixed(2)}</span>
-  </div>
+  </div>`}
+</div>
 </div>
   </div>`;
 }
