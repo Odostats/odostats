@@ -1171,6 +1171,7 @@ async function checkProStatus(userId){
     isLoggedIn=true;
     isPro=true;
     renderMatches();
+    loadOddsForVisible(); 
     document.getElementById('pm-lock-box')?.style.setProperty('display','none');
     document.getElementById('pm-unlock-btn')?.style.setProperty('display','none');
     document.getElementById('pm-last5')?.style.setProperty('display','block');
