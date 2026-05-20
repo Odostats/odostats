@@ -180,6 +180,8 @@ function renderTips(){
     return;
   }
 
+  const today = new Date().toISOString().split('T')[0];
+const isPro = false; // später via Supabase setzen
   const confClass = c => c==='Sehr Hoch'||c==='Hoch'?'hoch':'mittel';
   const resultHtml = t => {
     if(t.won===true) return '<span class="result-win">✅</span>';
@@ -187,19 +189,23 @@ function renderTips(){
     return '<span class="result-pending">⏳</span>';
   };
 
-  document.getElementById('tips-body').innerHTML = tips.map(t=>`
+document.getElementById('tips-body').innerHTML = tips.map(t=>{
+  const isToday = t.date && t.date.startsWith(today);
+  const locked = isToday && !isPro;
+  return `
     <div class="tip-row">
       <div class="tip-date">${t.date ? new Date(t.date).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'}) : '–'}</div>
       <div>
-        <div class="tip-match">${t.home_team} vs ${t.away_team}</div>
-        ${t.result?`<div class="tip-match-sub">${t.result}</div>`:''}
+        <div class="tip-match">${locked?'??? vs ???':t.home_team+' vs '+t.away_team}</div>
+        ${t.result&&!locked?`<div class="tip-match-sub">${t.result}</div>`:''}
       </div>
-      <div class="tip-label">${t.tip||'–'}</div>
-      <div class="tip-odd">${t.odd?t.odd.toFixed(2):'–'}</div>
-      <div class="tip-conf ${confClass(t.conf)}">${t.conf||'–'}</div>
-      <div class="tip-result">${resultHtml(t)}</div>
+      <div class="tip-label" style="${locked?'filter:blur(4px)':''}">${locked?'🔒 Pro':t.tip||'–'}</div>
+      <div class="tip-odd" style="${locked?'filter:blur(4px)':''}">${locked?'–':t.odd?t.odd.toFixed(2):'–'}</div>
+      <div class="tip-conf ${confClass(t.conf)}" style="${locked?'filter:blur(4px)':''}">${locked?'–':t.conf||'–'}</div>
+      <div class="tip-result">${locked?'🔒':resultHtml(t)}</div>
     </div>
-  `).join('');
+  `;
+}).join('');
 }
 
 loadTips();
