@@ -593,7 +593,14 @@ allTips.forEach(t=>{
   if(!grouped[t.fixtureId])grouped[t.fixtureId]=[];
   if(grouped[t.fixtureId].length<2)grouped[t.fixtureId].push(t);
 });
-const bestTips=Object.values(grouped).flat().sort((a,b)=>a.odd-b.odd).slice(0,8);
+const combined=Object.values(grouped).map(tips=>{
+  if(tips.length===2){
+    return{fixtureId:tips[0].fixtureId,label:tips[0].label+' + '+tips[1].label,odd:Math.round(tips[0].odd*tips[1].odd*100)/100,conf:tips[0].conf};
+  }
+  return tips[0];
+});
+const confOrder={'Sehr Hoch':0,'Hoch':1,'Mittel':2,'Moderat':3};
+const bestTips=combined.sort((a,b)=>(confOrder[a.conf]||9)-(confOrder[b.conf]||9)).slice(0,8);
   // Speichere Tipps in Supabase
 const today=new Date().toISOString().split('T')[0];
 for(const tip of bestTips){
