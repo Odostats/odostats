@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OdoStats – Tipp Historie</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060b12;--bg2:#0c1220;--bg3:#111827;--bg4:#1a2537;--bg5:#1e2d42;
+  --border:#1e2d42;--border2:#253548;
+  --text:#f0f6ff;--text2:#8ba3c0;--text3:#4a607a;
+  --green:#00d68f;--green2:#00a86b;--green3:#003d25;
+  --red:#ff4d6a;--yellow:#ffb020;--blue:#4d8eff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;min-height:100vh}
+button{font-family:'Inter',sans-serif;cursor:pointer}
+
+.topbar{height:50px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;position:fixed;top:0;left:0;right:0;z-index:200}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;cursor:pointer;text-decoration:none}
+.logo-o{color:#fff}.logo-s{color:var(--green)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.back-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all 0.15s}
+.back-btn:hover{color:var(--text);border-color:var(--green)}
+.pro-pill{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;border:none;cursor:pointer;text-decoration:none}
+
+.container{max-width:900px;margin:0 auto;padding:70px 16px 40px}
+
+.page-header{margin-bottom:24px}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:6px}
+.page-sub{font-size:12px;color:var(--text3)}
+
+/* STATS CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat-card-val{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;color:var(--green);margin-bottom:4px}
+.stat-card-val.red{color:var(--red)}
+.stat-card-val.yellow{color:var(--yellow)}
+.stat-card-label{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:0.8px}
+
+/* FILTER */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all 0.15s}
+.filter-btn:hover,.filter-btn.active{background:var(--bg4);color:var(--text);border-color:var(--green)}
+
+/* TIPS TABLE */
+.tips-table{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.tips-table-header{display:grid;grid-template-columns:80px 1fr 100px 60px 80px 60px;gap:8px;padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border)}
+.th{font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:0.8px}
+.tip-row{display:grid;grid-template-columns:80px 1fr 100px 60px 80px 60px;gap:8px;padding:12px 16px;border-bottom:1px solid rgba(30,45,66,0.5);align-items:center;transition:background 0.12s}
+.tip-row:hover{background:var(--bg3)}
+.tip-row:last-child{border-bottom:none}
+.tip-date{font-size:11px;color:var(--text3)}
+.tip-match{font-size:12px;font-weight:600;color:var(--text)}
+.tip-match-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.tip-label{font-size:11px;font-weight:700;color:var(--green)}
+.tip-odd{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
+.tip-conf{font-size:10px;font-weight:700}
+.tip-conf.hoch{color:var(--green)}
+.tip-conf.mittel{color:var(--yellow)}
+.tip-result{text-align:center;font-size:16px}
+.result-win{color:var(--green)}
+.result-loss{color:var(--red)}
+.result-pending{color:var(--text3);font-size:11px}
+
+.empty{padding:40px;text-align:center;color:var(--text3);font-size:13px}
+.spin-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;gap:12px;color:var(--text3)}
+.spin{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PRO BANNER */
+.pro-banner{background:linear-gradient(135deg,rgba(0,214,143,0.1),rgba(77,142,255,0.1));border:1px solid rgba(0,214,143,0.2);border-radius:12px;padding:20px;text-align:center;margin-bottom:24px}
+.pro-banner-title{font-size:16px;font-weight:800;color:#fff;margin-bottom:6px}
+.pro-banner-sub{font-size:12px;color:var(--text2);margin-bottom:14px}
+.pro-banner-btn{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer}
+
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .tips-table-header{grid-template-columns:70px 1fr 80px 50px}
+  .tip-row{grid-template-columns:70px 1fr 80px 50px}
+  .tip-conf,.tip-result{display:none}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="/" class="logo"><span class="logo-o">Odo</span><span class="logo-s">Stats</span></a>
+  <div class="topbar-right">
+    <a href="/" class="back-btn">← Zurück</a>
+    <a href="/" class="pro-pill">⚡ Pro – CHF 19.90/mo</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="page-header">
+    <div class="page-title">🤖 AI Tipp Historie</div>
+    <div class="page-sub">Alle KI-Tipps der letzten 30 Tage mit Ergebnissen</div>
+  </div>
+
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card"><div class="stat-card-val" id="stat-total">–</div><div class="stat-card-label">Tipps Total</div></div>
+    <div class="stat-card"><div class="stat-card-val" id="stat-won">–</div><div class="stat-card-label">Gewonnen ✅</div></div>
+    <div class="stat-card"><div class="stat-card-val red" id="stat-lost">–</div><div class="stat-card-label">Verloren ❌</div></div>
+    <div class="stat-card"><div class="stat-card-val yellow" id="stat-rate">–</div><div class="stat-card-label">Trefferquote</div></div>
+  </div>
+
+  <div class="pro-banner">
+    <div class="pro-banner-title">⚡ Erhalte alle Tipps live</div>
+    <div class="pro-banner-sub">Pro-Mitglieder sehen täglich 5-8 KI-Tipps direkt bei jedem Spiel — mit Quote und Konfidenz.</div>
+    <button class="pro-banner-btn" onclick="window.location.href='/'">Pro kaufen – CHF 19.90/mo</button>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterTips('all',this)">Alle</button>
+    <button class="filter-btn" onclick="filterTips('won',this)">✅ Gewonnen</button>
+    <button class="filter-btn" onclick="filterTips('lost',this)">❌ Verloren</button>
+    <button class="filter-btn" onclick="filterTips('pending',this)">⏳ Ausstehend</button>
+  </div>
+
+  <div class="tips-table">
+    <div class="tips-table-header">
+      <div class="th">Datum</div>
+      <div class="th">Spiel</div>
+      <div class="th">Tipp</div>
+      <div class="th">Quote</div>
+      <div class="th">Konfidenz</div>
+      <div class="th">Ergebnis</div>
+    </div>
+    <div id="tips-body">
+      <div class="spin-wrap"><div class="spin"></div><span>Lade Tipps...</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseClient = supabase.createClient('https://zfoovkkujobyrtyhjnxd.supabase.co', 'sb_publishable_thBaDy-exT4VjYEaRooIvA_If-AJvLv');
+
+let allTips = [];
+let currentFilter = 'all';
+
+async function loadTips(){
+  const {data, error} = await supabaseClient.from('tips').select('*').order('date', {ascending: false}).limit(200);
+  if(error || !data){
+    document.getElementById('tips-body').innerHTML='<div class="empty">Fehler beim Laden der Tipps</div>';
+    return;
+  }
+  allTips = data;
+  updateStats();
+  renderTips();
+}
+
+function updateStats(){
+  const finished = allTips.filter(t=>t.won!==null);
+  const won = allTips.filter(t=>t.won===true).length;
+  const lost = allTips.filter(t=>t.won===false).length;
+  const rate = finished.length ? Math.round(won/finished.length*100) : 0;
+  document.getElementById('stat-total').textContent = allTips.length;
+  document.getElementById('stat-won').textContent = won;
+  document.getElementById('stat-lost').textContent = lost;
+  document.getElementById('stat-rate').textContent = finished.length ? rate+'%' : '–';
+}
+
+function filterTips(filter, el){
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderTips();
+}
+
+function renderTips(){
+  let tips = [...allTips];
+  if(currentFilter==='won') tips=tips.filter(t=>t.won===true);
+  else if(currentFilter==='lost') tips=tips.filter(t=>t.won===false);
+  else if(currentFilter==='pending') tips=tips.filter(t=>t.won===null);
+
+  if(!tips.length){
+    document.getElementById('tips-body').innerHTML='<div class="empty">Keine Tipps gefunden</div>';
+    return;
+  }
+
+  const confClass = c => c==='Sehr Hoch'||c==='Hoch'?'hoch':'mittel';
+  const resultHtml = t => {
+    if(t.won===true) return '<span class="result-win">✅</span>';
+    if(t.won===false) return '<span class="result-loss">❌</span>';
+    return '<span class="result-pending">⏳</span>';
+  };
+
+  document.getElementById('tips-body').innerHTML = tips.map(t=>`
+    <div class="tip-row">
+      <div class="tip-date">${t.date ? new Date(t.date).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'}) : '–'}</div>
+      <div>
+        <div class="tip-match">${t.home_team} vs ${t.away_team}</div>
+        ${t.result?`<div class="tip-match-sub">${t.result}</div>`:''}
+      </div>
+      <div class="tip-label">${t.tip||'–'}</div>
+      <div class="tip-odd">${t.odd?t.odd.toFixed(2):'–'}</div>
+      <div class="tip-conf ${confClass(t.conf)}">${t.conf||'–'}</div>
+      <div class="tip-result">${resultHtml(t)}</div>
+    </div>
+  `).join('');
+}
+
+loadTips();
+</script>
+</body>
+</html>
