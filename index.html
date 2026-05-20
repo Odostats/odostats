@@ -550,58 +550,60 @@ async function loadAITip(){
 
 // LOAD AI TIPS FOR VISIBLE MATCHES
 async function loadOddsForVisible(){
-  const visibleFixtures=allFixtures.filter(f=>f.fixture.status.short==='NS').slice(0,10);
-  const fakeTips=['1','X','2','1X','X2','12','O2.5','U2.5','GG'];
-  const fakeConf=['Sehr Hoch','Hoch','Mittel'];
+  const visibleFixtures=allFixtures.filter(f=>f.fixture.status.short==='NS');
+  const allTips=[];
+  
   for(const f of visibleFixtures){
-    const id=f.fixture.id;
-    const tv=document.getElementById('tip-val-'+id);
-    const tc=document.getElementById('tip-conf-'+id);
-    if(!tv||!tc)continue;
     try{
-      const data=await apiFetch('odds=1&fixture='+id);
+      const data=await apiFetch('odds=1&fixture='+f.fixture.id);
       const bks=data.response?.[0]?.bookmakers?.[0]?.bets||[];
-     const markets=[
+      const markets=[
   {name:'Match Winner',labels:{Home:f.teams.home.name,Draw:'X',Away:f.teams.away.name}},
   {name:'Double Chance',labels:{'Home/Draw':'1X','Home/Away':'12','Draw/Away':'X2'}},
   {name:'Goals Over/Under',labels:{'Over 2.5':'O2.5','Under 2.5':'U2.5','Over 1.5':'O1.5','Under 1.5':'U1.5'}},
+  {name:'Goals Over/Under First Half',labels:{'Over 0.5':'HZ O0.5','Under 0.5':'HZ U0.5','Over 1.5':'HZ O1.5','Under 1.5':'HZ U1.5'}},
   {name:'Both Teams Score',labels:{Yes:'GG',No:'NG'}},
+  {name:'Both Teams Score - First Half',labels:{Yes:'GG HZ',No:'NG HZ'}},
   {name:'Corners Over Under',labels:{'Over 9.5':'Ecken O9.5','Under 9.5':'Ecken U9.5','Over 10.5':'Ecken O10.5','Under 10.5':'Ecken U10.5'}},
-  {name:'Cards Over/Under',labels:{'Over 3.5':'Karten O3.5','Under 3.5':'Karten U3.5','Over 4.5':'Karten O4.5','Under 4.5':'Karten U4.5'}},
+  {name:'Cards Over/Under',labels:{'Over 3.5':'Karten O3.5','Under 3.5':'Karten U3.5'}},
   {name:'Draw No Bet',labels:{Home:f.teams.home.name+' DNB',Away:f.teams.away.name+' DNB'}},
-  {name:'Result/Total Goals',labels:{'Home/Over 2.5':f.teams.home.name+' & O2.5','Away/Over 2.5':f.teams.away.name+' & O2.5'}},
   {name:'Total Goals/Both Teams To Score',labels:{'Over 2.5/Yes':'O2.5 & GG','Under 2.5/No':'U2.5 & NG'}},
+  {name:'Team To Score First',labels:{Home:f.teams.home.name+' 1. Tor',Away:f.teams.away.name+' 1. Tor'}},
 ];
-      let bestTip=null;
       for(const market of markets){
         const bet=bks.find(b=>b.name===market.name);
         if(!bet)continue;
         for(const v of bet.values||[]){
           const odd=parseFloat(v.odd);
-          if(odd>=1.20&&odd<=1.75){
+          if(odd>=1.20&&odd<=1.55){
             const label=market.labels[v.value]||v.value;
-            const conf=odd<=1.40?'Sehr Hoch':odd<=1.60?'Hoch':'Mittel';
-            bestTip={label,conf,odd};
-            break;
+            const conf=odd<=1.30?'Sehr Hoch':odd<=1.42?'Hoch':'Mittel';
+            allTips.push({fixtureId:f.fixture.id,label,conf,odd});
           }
-        }
-        if(bestTip)break;
-      }
-      if(bestTip){
-        if(isPro){
-          tv.textContent=bestTip.label+' ⚡';
-          tc.textContent=bestTip.conf;
-          tv.style.filter='none';
-          tc.style.filter='none';
-        } else {
-          tv.textContent=bestTip.label+' ⚡';
-          tc.textContent=bestTip.conf;
-          tv.style.filter='blur(4px)';
-          tc.style.filter='blur(4px)';
         }
       }
     }catch(e){}
     await new Promise(r=>setTimeout(r,200));
+  }
+
+  // Sortiere nach bester Quote und nimm Top 8
+  allTips.sort((a,b)=>a.odd-b.odd);
+  const bestTips=allTips.slice(0,8);
+  const tipFixtureIds=new Set(bestTips.map(t=>t.fixtureId));
+
+  // Zeige Tipps nur für ausgewählte Spiele
+  for(const f of visibleFixtures){
+    const id=f.fixture.id;
+    const tv=document.getElementById('tip-val-'+id);
+    const tc=document.getElementById('tip-conf-'+id);
+    if(!tv||!tc)continue;
+    const tip=bestTips.find(t=>t.fixtureId===id);
+    if(tip){
+      tv.textContent=tip.label+' ⚡';
+      tc.textContent=tip.conf;
+      tv.style.filter=isPro?'none':'blur(4px)';
+      tc.style.filter=isPro?'none':'blur(4px)';
+    }
   }
 }
 
