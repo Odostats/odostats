@@ -559,9 +559,9 @@ async function loadOddsForVisible(){
       const bks=data.response?.[0]?.bookmakers?.[0]?.bets||[];
       const markets=[
   {name:'Match Winner',labels:{Home:f.teams.home.name,Draw:'X',Away:f.teams.away.name}},
-  {name:'Double Chance',labels:{'Home/Draw':'1X','Home/Away':'12','Draw/Away':'X2'}},
+  {name:'Double Chance',labels:{'Home/Draw':'1X','Home/Away':'Home/Away','Draw/Away':'X2'}},
   {name:'Goals Over/Under',labels:{'Over 2.5':'O2.5','Under 2.5':'U2.5','Over 1.5':'O1.5','Under 1.5':'U1.5'}},
-  {name:'Goals Over/Under First Half',labels:{'Over 0.5':'HZ O0.5','Under 0.5':'HZ U0.5','Over 1.5':'HZ O1.5','Under 1.5':'HZ U1.5'}},
+  {name:'Goals Over/Under First Half',labels:{'Over 0.5':'HZ Over0.5','Under 0.5':'HZ U0.5','Over 1.5':'HZ Over1.5','Under 1.5':'HZ U1.5'}},
   {name:'Both Teams Score',labels:{Yes:'GG',No:'NG'}},
   {name:'Both Teams Score - First Half',labels:{Yes:'GG HZ',No:'NG HZ'}},
   {name:'Corners Over Under',labels:{'Over 9.5':'Ecken O9.5','Under 9.5':'Ecken U9.5','Over 10.5':'Ecken O10.5','Under 10.5':'Ecken U10.5'}},
