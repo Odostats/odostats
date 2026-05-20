@@ -181,7 +181,7 @@ function renderTips(){
   }
 
   const today = new Date().toISOString().split('T')[0];
-const isPro = false; // später via Supabase setzen
+ let isPro = false; // später via Supabase setzen
   const confClass = c => c==='Sehr Hoch'||c==='Hoch'?'hoch':'mittel';
   const resultHtml = t => {
     if(t.won===true) return '<span class="result-win">✅</span>';
@@ -208,7 +208,18 @@ document.getElementById('tips-body').innerHTML = tips.map(t=>{
 }).join('');
 }
 
-loadTips();
+async function init(){
+  await loadTips();
+  const {data:{session}} = await supabaseClient.auth.getSession();
+  if(session?.user){
+    const {data} = await supabaseClient.from('profiles').select('is_pro').eq('id',session.user.id).single();
+    if(data?.is_pro){
+      isPro = true;
+      renderTips();
+    }
+  }
+}
+init();
 </script>
 </body>
 </html>
