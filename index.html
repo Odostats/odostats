@@ -588,8 +588,12 @@ async function loadOddsForVisible(){
   }
 
   // Sortiere nach bester Quote und nimm Top 8
-  allTips.sort((a,b)=>a.odd-b.odd);
-  const bestTips=allTips.slice(0,8);
+  const grouped={};
+allTips.forEach(t=>{
+  if(!grouped[t.fixtureId])grouped[t.fixtureId]=[];
+  if(grouped[t.fixtureId].length<2)grouped[t.fixtureId].push(t);
+});
+const bestTips=Object.values(grouped).flat().sort((a,b)=>a.odd-b.odd).slice(0,8);
   // Speichere Tipps in Supabase
 const today=new Date().toISOString().split('T')[0];
 for(const tip of bestTips){
