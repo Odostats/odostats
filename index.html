@@ -576,7 +576,7 @@ async function loadOddsForVisible(){
         if(!bet)continue;
         for(const v of bet.values||[]){
           const odd=parseFloat(v.odd);
-          if(odd>=1.20&&odd<=1.55){
+          if(odd>=1.30&&odd<=1.80){
             const label=market.labels[v.value]||v.value;
             const conf=odd<=1.30?'Sehr Hoch':odd<=1.42?'Hoch':'Mittel';
             allTips.push({fixtureId:f.fixture.id,label,conf,odd});
