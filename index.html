@@ -548,24 +548,52 @@ async function loadAITip(){
   }
 }
 
-// LOAD ODDS FOR VISIBLE MATCHES
+// LOAD AI TIPS FOR VISIBLE MATCHES
 async function loadOddsForVisible(){
   const visibleFixtures=allFixtures.filter(f=>f.fixture.status.short==='NS').slice(0,10);
+  const fakeTips=['1','X','2','1X','X2','12','O2.5','U2.5','GG'];
+  const fakeConf=['Sehr Hoch','Hoch','Mittel'];
   for(const f of visibleFixtures){
+    const id=f.fixture.id;
+    const tv=document.getElementById('tip-val-'+id);
+    const tc=document.getElementById('tip-conf-'+id);
+    if(!tv||!tc)continue;
     try{
-      const data=await apiFetch('odds=1&fixture='+f.fixture.id);
-      const bk=data.response?.[0]?.bookmakers?.[0]?.bets?.find(b=>b.name==='Match Winner');
-      if(bk){
-        const h=bk.values?.find(v=>v.value==='Home')?.odd;
-        const d=bk.values?.find(v=>v.value==='Draw')?.odd;
-        const a=bk.values?.find(v=>v.value==='Away')?.odd;
-        const id=f.fixture.id;
-        const oh=document.getElementById('o1-'+id);
-        const od=document.getElementById('oX-'+id);
-        const oa=document.getElementById('o2-'+id);
-        if(oh&&h){oh.textContent=h;oh.className='odd-pill-val';}
-        if(od&&d){od.textContent=d;od.className='odd-pill-val';}
-        if(oa&&a){oa.textContent=a;oa.className='odd-pill-val';}
+      const data=await apiFetch('odds=1&fixture='+id);
+      const bks=data.response?.[0]?.bookmakers?.[0]?.bets||[];
+      const markets=[
+        {name:'Match Winner',labels:{Home:f.teams.home.name,Draw:'X',Away:f.teams.away.name}},
+        {name:'Double Chance',labels:{'Home/Draw':'1X','Home/Away':'12','Draw/Away':'X2'}},
+        {name:'Goals Over/Under',labels:{'Over 2.5':'O2.5','Under 2.5':'U2.5'}},
+        {name:'Both Teams Score',labels:{Yes:'GG',No:'NG'}},
+      ];
+      let bestTip=null;
+      for(const market of markets){
+        const bet=bks.find(b=>b.name===market.name);
+        if(!bet)continue;
+        for(const v of bet.values||[]){
+          const odd=parseFloat(v.odd);
+          if(odd>=1.20&&odd<=1.75){
+            const label=market.labels[v.value]||v.value;
+            const conf=odd<=1.40?'Sehr Hoch':odd<=1.60?'Hoch':'Mittel';
+            bestTip={label,conf,odd};
+            break;
+          }
+        }
+        if(bestTip)break;
+      }
+      if(bestTip){
+        if(isPro){
+          tv.textContent=bestTip.label+' ⚡';
+          tc.textContent=bestTip.conf;
+          tv.style.filter='none';
+          tc.style.filter='none';
+        } else {
+          tv.textContent=bestTip.label+' ⚡';
+          tc.textContent=bestTip.conf;
+          tv.style.filter='blur(4px)';
+          tc.style.filter='blur(4px)';
+        }
       }
     }catch(e){}
     await new Promise(r=>setTimeout(r,200));
