@@ -1272,7 +1272,7 @@ async function loadEvents(){
 // INIT
 setupDateNav();
 loadAllMatches();
-loadPlayersForToday();
+setTimeout(()=>loadPlayersForToday(), 5000);
 loadAllTeams();
 supabaseClient.auth.getSession().then(({data:{session}})=>{
   if(session?.user){
