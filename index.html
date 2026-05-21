@@ -1271,7 +1271,8 @@ async function loadEvents(){
 
 // INIT
 setupDateNav();
-loadAllMatches().then(()=>loadPlayersForToday());
+loadAllMatches();
+loadPlayersForToday();
 loadAllTeams();
 supabaseClient.auth.getSession().then(({data:{session}})=>{
   if(session?.user){
