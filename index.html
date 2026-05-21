@@ -732,7 +732,18 @@ async function handleSearch(q){
     const teams=allTeams.filter(t=>t.name.toLowerCase().includes(ql)).slice(0,3);
 
     // Spieler aus allPlayers suchen
-    const players=allPlayers.filter(p=>p.name.toLowerCase().includes(ql)).slice(0,4);
+    let players=allPlayers.filter(p=>p.name.toLowerCase().includes(ql)).slice(0,4);
+if(players.length<2){
+  try{
+    const pd=await apiFetch('searchPlayer='+encodeURIComponent(q));
+    const apiPlayers=pd.response||[];
+    apiPlayers.slice(0,4).forEach(r=>{
+      if(!players.find(x=>x.id===r.player.id)){
+        players.push({id:r.player.id,name:r.player.name,photo:r.player.photo||'',num:'–',pos:r.player.position||'–',club:r.statistics?.[0]?.team?.name||'–',clubLogo:r.statistics?.[0]?.team?.logo||'',teamId:r.statistics?.[0]?.team?.id});
+      }
+    });
+  }catch(e){}
+}
 
     if(!teams.length&&!players.length){
       results.innerHTML='<div class="search-result-item"><span class="search-result-name">No results found</span></div>';
