@@ -359,12 +359,13 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
 
 <!-- PLAYER MODAL -->
 <div class="modal-bg" id="player-modal" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal-box">
+  <div class="modal-box" style="width:480px">
     <div class="modal-hero">
       <img id="pm-photo" class="modal-photo" src="" onerror="this.src=''" style="background:var(--bg4)">
       <div class="modal-info">
         <div class="modal-name" id="pm-name">–</div>
         <div class="modal-club" id="pm-club">–</div>
+        <div id="pm-form" style="display:flex;gap:4px;margin-top:6px"></div>
       </div>
       <div class="modal-close-btn" onclick="document.getElementById('player-modal').classList.remove('open')">✕</div>
     </div>
@@ -375,33 +376,22 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
         <div class="modal-info-box"><div class="modal-info-label">Nationality</div><div class="modal-info-val" id="pm-nat">–</div></div>
         <div class="modal-info-box"><div class="modal-info-label">Number</div><div class="modal-info-val" id="pm-num">–</div></div>
       </div>
-     <div class="pro-lock-box">
-  <div class="pro-lock-title">⚡ Pro Player Statistics</div>
-  <div id="pm-pro-stats">
-    <div class="pro-stat-row" style="grid-template-columns:repeat(3,1fr)">
-      <div class="pro-stat-box"><div class="pro-stat-label">Schüsse</div><div class="pro-stat-val">–</div></div>
-      <div class="pro-stat-box"><div class="pro-stat-label">Aufs Tor</div><div class="pro-stat-val">–</div></div>
-      <div class="pro-stat-box"><div class="pro-stat-label">Fouls</div><div class="pro-stat-val">–</div></div>
-      <div class="pro-stat-box"><div class="pro-stat-label">Gefoult</div><div class="pro-stat-val">–</div></div>
-      <div class="pro-stat-box"><div class="pro-stat-label">Pässe</div><div class="pro-stat-val">–</div></div>
-      <div class="pro-stat-box"><div class="pro-stat-label">Pass %</div><div class="pro-stat-val">–</div></div>
+
+      <!-- HIT RATES -->
+      <div id="pm-hit-rates" style="margin-bottom:12px"></div>
+
+      <!-- SEASON STATS -->
+      <div class="pro-lock-box">
+        <div class="pro-lock-title">⚡ Saison Statistiken</div>
+        <div id="pm-pro-stats">
+          <div class="spin-wrap"><div class="spin"></div></div>
+        </div>
+        <div class="pro-lock-title" style="margin-top:12px">📅 Letzte 5 Spiele</div>
+        <div id="pm-last5"></div>
+        <button class="pro-unlock-btn" id="pm-unlock-btn" onclick="startCheckout()" style="margin-top:10px">Unlock Pro ⚡ CHF 19.90/mo</button>
+      </div>
     </div>
   </div>
-
-  <div class="pro-lock-title" style="margin-top:12px">📅 Letzte 5 Spiele</div>
-    <div id="pm-lock-box" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;pointer-events:none"></div>
-  <span style="font-size:20px">🔒</span>
-  <span style="font-size:11px;font-weight:800;color:var(--green)">Pro Feature</span>
-  <span style="font-size:10px;color:var(--text2)">Letzte 5 Spiele pro Stat</span>
-</div>
-
-<div id="pm-last5"></div>
-<button class="pro-unlock-btn" id="pm-unlock-btn" onclick="startCheckout()">Unlock Pro ⚡ CHF 19.90/mo</button>
-</div>
-</div>
-    </div>
-  </div>
-</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -1052,95 +1042,143 @@ async function loadTable(){
 async function openPlayer(enc){
   const p=JSON.parse(decodeURIComponent(enc));
   document.getElementById('pm-photo').src=p.photo||'';
-  console.log('Player ID:', p.playerId);
   document.getElementById('pm-name').textContent=p.name;
   document.getElementById('pm-num').textContent='#'+p.num;
   document.getElementById('pm-pos').textContent=p.pos;
   document.getElementById('pm-age').textContent='Loading...';
   document.getElementById('pm-nat').textContent='Loading...';
+  document.getElementById('pm-form').innerHTML='';
+  document.getElementById('pm-hit-rates').innerHTML='';
+  document.getElementById('pm-pro-stats').innerHTML='<div class="spin-wrap"><div class="spin"></div></div>';
+  document.getElementById('pm-last5').innerHTML='';
   const club=document.getElementById('pm-club');
   club.innerHTML=(p.clubLogo?'<img src="'+p.clubLogo+'" style="width:14px;height:14px;object-fit:contain" onerror="this.style.display=\'none\'">':'')+" "+p.club;
   document.getElementById('player-modal').classList.add('open');
-  
-  // Reset pro stats
-  document.getElementById('pm-pro-stats').innerHTML='<div class="spin-wrap"><div class="spin"></div></div>';
-  document.getElementById('pm-last5').innerHTML='<div class="spin-wrap"><div class="spin"></div></div>';
-  
-  if(p.playerId){
-    try{
-      const [basicData,statsData]=await Promise.all([
-        apiFetch('player='+p.playerId+'&season=2025'),
-       apiFetch('player='+p.playerId+'&season=2025')
-      ]);
-      const player=basicData.response?.[0]?.player;
-      const allStats=basicData.response?.[0]?.statistics||[];
-const stats=allStats.reduce((acc,s)=>({
-  shots:{total:(acc.shots?.total||0)+(s.shots?.total||0),on:(acc.shots?.on||0)+(s.shots?.on||0)},
-  fouls:{committed:(acc.fouls?.committed||0)+(s.fouls?.committed||0),drawn:(acc.fouls?.drawn||0)+(s.fouls?.drawn||0)},
-  passes:{total:(acc.passes?.total||0)+(s.passes?.total||0),accuracy:s.passes?.accuracy||acc.passes?.accuracy||0}
-}),{});;
-      if(player){
-        document.getElementById('pm-age').textContent=player.age||'–';
-        document.getElementById('pm-nat').textContent=player.nationality||'–';
-        if(player.photo)document.getElementById('pm-photo').src=player.photo;
-      }
-      if(stats){
-        const shots=stats.shots?.total||0;
-        const shotsOn=stats.shots?.on||0;
-        const fouls=stats.fouls?.committed||0;
-        const fouled=stats.fouls?.drawn||0;
-        const passes=stats.passes?.total||0;
-        const passAcc=stats.passes?.accuracy||0;
-        document.getElementById('pm-pro-stats').innerHTML=`
-          <div class="pro-stat-row" style="grid-template-columns:repeat(3,1fr)">
-            <div class="pro-stat-box"><div class="pro-stat-label">Schüsse</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${shots}</div></div>
-            <div class="pro-stat-box"><div class="pro-stat-label">Aufs Tor</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${shotsOn}</div></div>
-            <div class="pro-stat-box"><div class="pro-stat-label">Fouls</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${fouls}</div></div>
-            <div class="pro-stat-box"><div class="pro-stat-label">Gefoult</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${fouled}</div></div>
-            <div class="pro-stat-box"><div class="pro-stat-label">Pässe</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${passes}</div></div>
-            <div class="pro-stat-box"><div class="pro-stat-label">Pass %</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${passAcc}%</div></div>
-          </div>`;
-      }
-      // Last 5 games
-const last5Data = await apiFetch('team='+p.teamId+'&last=5&season=2025');
-const fx = last5Data.response || [];
-if(fx.length && isPro){
-  const statRows = {shots:[],shotsOn:[],fouls:[],fouled:[],passes:[]};
-  for(const f of fx.slice(0,5)){
-    try{
-      const sd = await apiFetch('playerStats=1&fixture='+f.fixture.id);
-const teamData = sd.response?.find(t=>t.players?.find(pl=>pl.player.id===p.playerId));
-const st = teamData?.players?.find(pl=>pl.player.id===p.playerId)?.statistics?.[0] || {};
-      statRows.shots.push(st.shots?.total??'–');
-      statRows.shotsOn.push(st.shots?.on??'–');
-      statRows.fouls.push(st.fouls?.committed??'–');
-      statRows.fouled.push(st.fouls?.drawn??'–');
-      statRows.passes.push(st.passes?.total??'–');
-    }catch(e){
-      statRows.shots.push('–');statRows.shotsOn.push('–');
-      statRows.fouls.push('–');statRows.fouled.push('–');statRows.passes.push('–');
+
+  if(!p.playerId) return;
+  try{
+    const basicData=await apiFetch('player='+p.playerId+'&season=2025');
+    const player=basicData.response?.[0]?.player;
+    const allStats=basicData.response?.[0]?.statistics||[];
+
+    if(player){
+      document.getElementById('pm-age').textContent=player.age||'–';
+      document.getElementById('pm-nat').textContent=player.nationality||'–';
+      if(player.photo) document.getElementById('pm-photo').src=player.photo;
     }
-  }
-  const labels=['Schüsse','Aufs Tor','Fouls','Gefoult','Pässe'];
-  const keys=['shots','shotsOn','fouls','fouled','passes'];
-  let h='<table style="width:100%;border-collapse:collapse;margin-top:6px">';
-  h+='<tr style="font-size:9px;color:var(--text3)"><td style="padding:4px 6px">Stat</td>';
-  fx.slice(0,5).forEach((_,i)=>h+=`<td style="text-align:center;padding:4px">Sp${i+1}</td>`);
-  h+='</tr>';
-  keys.forEach((k,i)=>{
-    h+=`<tr><td style="font-size:9px;color:var(--text3);padding:4px 6px">${labels[i]}</td>`;
-    statRows[k].forEach(v=>h+=`<td style="text-align:center;font-size:11px;font-weight:700;color:var(--green)">${v}</td>`);
-    h+='</tr>';
-  });
-  h+='</table>';
-  document.getElementById('pm-last5').innerHTML=h;
-} else if(!isPro){
-  document.getElementById('pm-last5').innerHTML='';
-} else {
-  document.getElementById('pm-last5').innerHTML='<div class="empty">Keine Daten</div>';
-}
- 
-    }catch(e){
+
+    // Saison Stats aggregieren
+    const stats=allStats.reduce((acc,s)=>({
+      shots:{total:(acc.shots?.total||0)+(s.shots?.total||0),on:(acc.shots?.on||0)+(s.shots?.on||0)},
+      goals:{total:(acc.goals?.total||0)+(s.goals?.total||0),assists:(acc.goals?.assists||0)+(s.goals?.assists||0)},
+      fouls:{committed:(acc.fouls?.committed||0)+(s.fouls?.committed||0),drawn:(acc.fouls?.drawn||0)+(s.fouls?.drawn||0)},
+      passes:{total:(acc.passes?.total||0)+(s.passes?.total||0),accuracy:s.passes?.accuracy||acc.passes?.accuracy||0},
+      games:{appearances:(acc.games?.appearances||0)+(s.games?.appearances||0)}
+    }),{});
+
+    const shots=stats.shots?.total||0;
+    const shotsOn=stats.shots?.on||0;
+    const goals=stats.goals?.total||0;
+    const assists=stats.goals?.assists||0;
+    const fouls=stats.fouls?.committed||0;
+    const passes=stats.passes?.total||0;
+    const passAcc=stats.passes?.accuracy||0;
+    const apps=stats.games?.appearances||0;
+
+    document.getElementById('pm-pro-stats').innerHTML=`
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px">
+        <div class="pro-stat-box"><div class="pro-stat-label">Tore</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${goals}</div></div>
+        <div class="pro-stat-box"><div class="pro-stat-label">Assists</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${assists}</div></div>
+        <div class="pro-stat-box"><div class="pro-stat-label">Spiele</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${apps}</div></div>
+        <div class="pro-stat-box"><div class="pro-stat-label">Schüsse</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${shots}</div></div>
+        <div class="pro-stat-box"><div class="pro-stat-label">Aufs Tor</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${shotsOn}</div></div>
+        <div class="pro-stat-box"><div class="pro-stat-label">Pass %</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${passAcc}%</div></div>
+      </div>`;
+
+    // Letzte 5 Spiele laden für Hit Rates
+    if(p.teamId){
+      const last5Data=await apiFetch('team='+p.teamId+'&last=5&season=2025');
+      const fx=last5Data.response||[];
+
+      // Form Badges
+      const formHtml=fx.slice(0,5).map(f=>{
+        const isH=f.teams.home.id===p.teamId;
+        const tg=isH?f.goals.home:f.goals.away,og=isH?f.goals.away:f.goals.home;
+        const r=tg>og?'W':tg<og?'L':'D';
+        const col=r==='W'?'var(--green)':r==='L'?'var(--red)':'var(--yellow)';
+        return`<span style="width:22px;height:22px;border-radius:4px;background:${col};color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center">${r}</span>`;
+      }).join('');
+      document.getElementById('pm-form').innerHTML=formHtml;
+
+      // Hit Rates berechnen
+      if(fx.length){
+        const statRows={shots:[],shotsOn:[],goals:[],fouls:[]};
+        for(const f of fx.slice(0,5)){
+          try{
+            const sd=await apiFetch('playerStats=1&fixture='+f.fixture.id);
+            const teamData=sd.response?.find(t=>t.players?.find(pl=>pl.player.id===p.playerId));
+            const st=teamData?.players?.find(pl=>pl.player.id===p.playerId)?.statistics?.[0]||{};
+            statRows.shots.push(st.shots?.total||0);
+            statRows.shotsOn.push(st.shots?.on||0);
+            statRows.goals.push(st.goals?.total||0);
+            statRows.fouls.push(st.fouls?.committed||0);
+          }catch(e){
+            statRows.shots.push(0);statRows.shotsOn.push(0);
+            statRows.goals.push(0);statRows.fouls.push(0);
+          }
+        }
+
+        const hitRate=(arr,threshold)=>{
+          const hits=arr.filter(v=>v>=threshold).length;
+          return{hits,total:arr.length,pct:Math.round(hits/arr.length*100)};
+        };
+
+        const metrics=[
+          {label:'Schuss aufs Tor',data:statRows.shotsOn,threshold:1},
+          {label:'Mindestens 1 Schuss',data:statRows.shots,threshold:1},
+          {label:'Tor erzielt',data:statRows.goals,threshold:1},
+          {label:'Foul begangen',data:statRows.fouls,threshold:1},
+        ];
+
+        let hrHtml='<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📊 Hit Rates – Letzte 5 Spiele</div>';
+        metrics.forEach(m=>{
+          const r=hitRate(m.data,m.threshold);
+          const col=r.pct>=80?'var(--green)':r.pct>=50?'var(--yellow)':'var(--red)';
+          hrHtml+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:11px;color:var(--text2);flex:1">${m.label}</span>
+            <div style="width:80px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden">
+              <div style="width:${r.pct}%;height:100%;background:${col};border-radius:2px"></div>
+            </div>
+            <span style="font-size:11px;font-weight:700;color:${col};min-width:36px;text-align:right">${r.hits}/${r.total}</span>
+          </div>`;
+        });
+        hrHtml+='</div>';
+        document.getElementById('pm-hit-rates').innerHTML=hrHtml;
+
+        // Letzte 5 Spiele Tabelle
+        if(isPro){
+          let h='<table style="width:100%;border-collapse:collapse;margin-top:6px">';
+          h+='<tr style="font-size:9px;color:var(--text3)"><td style="padding:4px 6px">Stat</td>';
+          fx.slice(0,5).forEach((_,i)=>h+=`<td style="text-align:center;padding:4px">Sp${i+1}</td>`);
+          h+='</tr>';
+          const keys=['shots','shotsOn','goals','fouls'];
+          const labels=['Schüsse','Aufs Tor','Tore','Fouls'];
+          keys.forEach((k,i)=>{
+            h+=`<tr><td style="font-size:9px;color:var(--text3);padding:4px 6px">${labels[i]}</td>`;
+            statRows[k].forEach(v=>h+=`<td style="text-align:center;font-size:11px;font-weight:700;color:var(--green)">${v}</td>`);
+            h+='</tr>';
+          });
+          h+='</table>';
+          document.getElementById('pm-last5').innerHTML=h;
+        } else {
+          document.getElementById('pm-last5').innerHTML='';
+        }
+      }
+    }
+
+    document.getElementById('pm-unlock-btn').style.display=isPro?'none':'block';
+
+  }catch(e){
     console.log('Error:', e);
     document.getElementById('pm-age').textContent='–';
     document.getElementById('pm-nat').textContent='–';
@@ -1162,7 +1200,6 @@ async function startCheckout(){
     const {url}=await res.json();
     if(url)window.location.href=url;
   }catch(e){alert('Fehler: '+e.message);}
-}
 }
 function openLoginModal(){document.getElementById('login-modal').classList.add('open');}
 function toggleLoginMode(){
