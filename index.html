@@ -432,26 +432,22 @@ async function apiFetch(params){
 }
 
 // LOAD MATCHES
-async function loadAllMatches(){
-  const container=document.getElementById('matches-container');
-  container.innerHTML='<div class="spin-wrap"><div class="spin"></div><span>Loading matches...</span></div>';
-  const ds=currentDate.toISOString().split('T')[0];
-  try{
-    const leagues=[1,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
-    const batchSize=5;
-    const batches=[];
-    for(let i=0;i<leagues.length;i+=batchSize)batches.push(leagues.slice(i,i+batchSize));
-    const allResults=[];
-    for(const batch of batches){
-      const results=await Promise.all(batch.map(lid=>apiFetch('date='+ds+'&league='+lid+'&season=2025').catch(()=>({response:[]}))));
-      allResults.push(...results);
-    }
-    allFixtures=allResults.flatMap(r=>r.response||[]);
-    renderMatches();
-    loadAITip();
-    loadOddsForVisible();
-  }catch(e){
-    container.innerHTML='<div class="empty">Error: '+e.message+'</div>';
+async function loadPlayersForToday(){
+  const teams=new Set();
+  allFixtures.forEach(f=>{
+    teams.add({id:f.teams.home.id,name:f.teams.home.name,logo:f.teams.home.logo});
+    teams.add({id:f.teams.away.id,name:f.teams.away.name,logo:f.teams.away.logo});
+  });
+  for(const t of [...teams].slice(0,10)){
+    try{
+      const data=await apiFetch('squad='+t.id);
+      const players=data.response?.[0]?.players||[];
+      players.forEach(p=>{
+        if(!allPlayers.find(x=>x.id===p.id)){
+          allPlayers.push({id:p.id,name:p.name,photo:p.photo||'',num:p.number||'–',pos:p.position||'–',club:t.name,clubLogo:t.logo||'',teamId:t.id});
+        }
+      });
+    }catch(e){}
   }
 }
   // LOAD ALL TEAMS (cached)
@@ -733,17 +729,6 @@ async function handleSearch(q){
 
     // Spieler aus allPlayers suchen
     let players=allPlayers.filter(p=>p.name.toLowerCase().includes(ql)).slice(0,4);
-if(players.length<2){
-  try{
-    const pd=await apiFetch('searchPlayer='+encodeURIComponent(q));
-    const apiPlayers=pd.response||[];
-    apiPlayers.slice(0,4).forEach(r=>{
-      if(!players.find(x=>x.id===r.player.id)){
-        players.push({id:r.player.id,name:r.player.name,photo:r.player.photo||'',num:'–',pos:r.player.position||'–',club:r.statistics?.[0]?.team?.name||'–',clubLogo:r.statistics?.[0]?.team?.logo||'',teamId:r.statistics?.[0]?.team?.id});
-      }
-    });
-  }catch(e){}
-}
 
     if(!teams.length&&!players.length){
       results.innerHTML='<div class="search-result-item"><span class="search-result-name">No results found</span></div>';
@@ -1286,7 +1271,7 @@ async function loadEvents(){
 
 // INIT
 setupDateNav();
-loadAllMatches();
+loadAllMatches().then(()=>loadPlayersForToday());
 loadAllTeams();
 supabaseClient.auth.getSession().then(({data:{session}})=>{
   if(session?.user){
