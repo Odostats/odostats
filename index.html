@@ -448,7 +448,7 @@ async function loadAllMatches(){
   container.innerHTML='<div class="spin-wrap"><div class="spin"></div><span>Loading matches...</span></div>';
   const ds=currentDate.toISOString().split('T')[0];
   try{
-    const leagues=[2,3,39,40,61,71,78,88,94,98,103,106,113,119,128,135,140,144,169,179,197,203,207,218,253,262,307,383,848];
+    const leagues=[1,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
     const batchSize=5;
     const batches=[];
     for(let i=0;i<leagues.length;i+=batchSize)batches.push(leagues.slice(i,i+batchSize));
@@ -481,7 +481,7 @@ async function loadAllTeams(){
   }
 
   // Load fresh
-  const leagues=[2,3,39,40,61,71,78,88,94,98,103,106,113,119,128,135,140,144,169,179,197,203,207,218,253,262,307,383,848];
+  const leagues=[1,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
  const results=await Promise.all(leagues.map(lid=>apiFetch('teams='+lid+'&season=2025').catch(()=>({response:[]}))));
  const allT=results.flatMap(r=>r.response||[]).map(t=>({id:t.team.id,name:t.team.name,logo:t.team.logo||'',country:t.team.country||''}));
 const seen=new Set();
@@ -1241,6 +1241,15 @@ async function loadEvents(){
 setupDateNav();
 loadAllMatches();
 loadAllTeams();
+supabaseClient.auth.getSession().then(({data:{session}})=>{
+  if(session?.user){
+    isLoggedIn=true;
+    const email=session.user.email;
+    document.getElementById('login-btn').textContent=email.split('@')[0];
+    document.getElementById('login-btn').style.color='var(--green)';
+    checkProStatus(session.user.id);
+  }
+});
 setInterval(()=>{if(document.getElementById('matches-panel').style.display!=='none')loadAllMatches();},60000);
 document.addEventListener('DOMContentLoaded',()=>{
   document.body.appendChild(document.getElementById('login-modal'));
