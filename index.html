@@ -432,6 +432,29 @@ async function apiFetch(params){
 }
 
 // LOAD MATCHES
+async function loadAllMatches(){
+  const container=document.getElementById('matches-container');
+  container.innerHTML='<div class="spin-wrap"><div class="spin"></div><span>Loading matches...</span></div>';
+  const ds=currentDate.toISOString().split('T')[0];
+  try{
+    const leagues=[1,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
+    const batchSize=5;
+    const batches=[];
+    for(let i=0;i<leagues.length;i+=batchSize)batches.push(leagues.slice(i,i+batchSize));
+    const allResults=[];
+    for(const batch of batches){
+      const results=await Promise.all(batch.map(lid=>apiFetch('date='+ds+'&league='+lid+'&season=2025').catch(()=>({response:[]}))));
+      allResults.push(...results);
+    }
+    allFixtures=allResults.flatMap(r=>r.response||[]);
+    renderMatches();
+    loadAITip();
+    loadOddsForVisible();
+    updateTipResults();
+  }catch(e){
+    container.innerHTML='<div class="empty">Error: '+e.message+'</div>';
+  }
+}
 async function loadPlayersForToday(){
   const teams=new Set();
   allFixtures.forEach(f=>{
@@ -1315,7 +1338,6 @@ async function loadEvents(){
 // INIT
 setupDateNav();
 loadAllMatches();
-setTimeout(()=>loadPlayersForToday(), 5000);
 loadAllTeams();
 supabaseClient.auth.getSession().then(({data:{session}})=>{
   if(session?.user){
