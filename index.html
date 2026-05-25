@@ -503,8 +503,16 @@ async function loadAITip(){
   const banner=document.getElementById('ai-tip-banner');
   const tipText=document.getElementById('ai-tip-text');
   const tipConf=document.getElementById('ai-tip-conf');
-  const upcomingGames=allFixtures.filter(f=>f.fixture.status.short==='NS').slice(0,15);
-  if(!upcomingGames.length){banner.style.display='none';return;}
+  const cached=localStorage.getItem('ai_tip_'+new Date().toISOString().split('T')[0]);
+if(cached){
+  const t=JSON.parse(cached);
+  banner.style.display='flex';
+  tipText.innerHTML=t.text;
+  tipConf.textContent=t.conf;
+  return;
+}
+const upcomingGames=allFixtures.filter(f=>['NS','1H','2H','HT'].includes(f.fixture.status.short)).slice(0,15);
+if(!upcomingGames.length){banner.style.display='none';return;}
   
   banner.style.display='flex';
   tipText.innerHTML='🔍 Analysiere heutige Spiele...';
@@ -601,7 +609,7 @@ function checkTip(label,hg,ag,f){
 
 // LOAD AI TIPS FOR VISIBLE MATCHES
 async function loadOddsForVisible(){
-  const visibleFixtures=allFixtures.filter(f=>f.fixture.status.short==='NS');
+const visibleFixtures=allFixtures.filter(f=>['NS','1H','2H','HT'].includes(f.fixture.status.short));
   const allTips=[];
   
   for(const f of visibleFixtures){
