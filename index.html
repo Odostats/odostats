@@ -533,6 +533,48 @@ async function loadAITip(){
     banner.style.display='none';
   }
 }
+async function updateTipResults(){
+  const today=new Date().toISOString().split('T')[0];
+  const {data:tips}=await supabaseClient.from('tips').select('*').eq('date',today).is('won',null);
+  if(!tips?.length) return;
+  for(const tip of tips){
+    const f=allFixtures.find(x=>x.fixture.id===tip.fixture_id);
+    if(!f) continue;
+    const status=f.fixture.status.short;
+    if(!['FT','AET','PEN'].includes(status)) continue;
+    const hg=f.goals.home,ag=f.goals.away;
+    const tipLabel=tip.tip;
+    let won=false;
+    if(tipLabel.includes('+')){
+      const parts=tipLabel.split(' + ');
+      won=parts.every(part=>checkTip(part,hg,ag,f));
+    } else {
+      won=checkTip(tipLabel,hg,ag,f);
+    }
+    await supabaseClient.from('tips').update({won,result:`${hg} – ${ag}`}).eq('id',tip.id);
+  }
+}
+
+function checkTip(label,hg,ag,f){
+  const total=hg+ag;
+  const home=f.teams.home.name;
+  const away=f.teams.away.name;
+  if(label==='1X') return hg>=ag;
+  if(label==='X2') return ag>=hg;
+  if(label==='Home/Away') return hg!==ag;
+  if(label==='X') return hg===ag;
+  if(label===home||label.includes(home+' DNB')) return hg>ag;
+  if(label===away||label.includes(away+' DNB')) return ag>hg;
+  if(label==='GG') return hg>0&&ag>0;
+  if(label==='NG') return hg===0||ag===0;
+  if(label.includes('O2.5')) return total>2.5;
+  if(label.includes('U2.5')) return total<2.5;
+  if(label.includes('O1.5')) return total>1.5;
+  if(label.includes('U1.5')) return total<1.5;
+  if(label.includes('O3.5')) return total>3.5;
+  if(label.includes('U3.5')) return total<3.5;
+  return false;
+}
 
 // LOAD AI TIPS FOR VISIBLE MATCHES
 async function loadOddsForVisible(){
