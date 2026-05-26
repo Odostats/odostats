@@ -570,8 +570,14 @@ async function updateTipResults(){
 console.log('Tips:', tips, 'Error:', error);
 if(!tips?.length) return;
   for(const tip of tips){
-    const f=allFixtures.find(x=>x.fixture.id===Number(tip.fixture_id));
-    if(!f) continue;
+   let f=allFixtures.find(x=>x.fixture.id===Number(tip.fixture_id));
+if(!f){
+  try{
+    const fd=await apiFetch('fixture='+tip.fixture_id);
+    f=fd.response?.[0];
+  }catch(e){continue;}
+}
+if(!f) continue;
     const status=f.fixture.status.short;
     if(!['FT','AET','PEN'].includes(status)) continue;
     const hg=f.goals.home,ag=f.goals.away;
