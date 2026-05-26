@@ -570,7 +570,7 @@ async function updateTipResults(){
 console.log('Tips:', tips, 'Error:', error);
 if(!tips?.length) return;
   for(const tip of tips){
-    const f=allFixtures.find(x=>x.fixture.id===tip.fixture_id);
+    const f=allFixtures.find(x=>x.fixture.id===Number(tip.fixture_id));
     if(!f) continue;
     const status=f.fixture.status.short;
     if(!['FT','AET','PEN'].includes(status)) continue;
