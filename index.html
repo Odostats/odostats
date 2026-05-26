@@ -566,8 +566,9 @@ if(!upcomingGames.length){banner.style.display='none';return;}
 }
 async function updateTipResults(){
   const today=new Date().toISOString().split('T')[0];
-  const {data:tips}=await supabaseClient.from('tips').select('*').eq('date',today).is('won',null);
-  if(!tips?.length) return;
+  const {data:tips, error}=await supabaseClient.from('tips').select('*').eq('date',today).is('won',null);
+console.log('Tips:', tips, 'Error:', error);
+if(!tips?.length) return;
   for(const tip of tips){
     const f=allFixtures.find(x=>x.fixture.id===tip.fixture_id);
     if(!f) continue;
