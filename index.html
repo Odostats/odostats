@@ -449,7 +449,7 @@ async function apiFetch(params){
 async function loadAllMatches(){
   const container=document.getElementById('matches-container');
   container.innerHTML='<div class="spin-wrap"><div class="spin"></div><span>Loading matches...</span></div>';
-const ds=new Date().toISOString().split('T')[0];
+cconst ds=currentDate.toISOString().split('T')[0];
   try{
     const leagues=[1,10,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
    const allResults=[];
