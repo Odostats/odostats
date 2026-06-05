@@ -461,6 +461,8 @@ async function loadAllMatches(){
       allResults.push(...results);
     }
     allFixtures=allResults.flatMap(r=>r.response||[]);
+console.log('Total fixtures:', allFixtures.length, 'League 10:', allFixtures.filter(f=>f.league.id===10).length);
+allResults.forEach((r,i)=>console.log('Batch result',i,r.response?.length??'ERROR',r.errors));
     renderMatches();
     loadAITip();
     loadOddsForVisible();
