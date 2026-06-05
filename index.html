@@ -456,7 +456,7 @@ console.log('DS:', ds);
    const allResults=[];
 for(const lid of leagues){
   try{
-    const r=await apiFetch('date='+ds+'&league='+lid+'&season='+(lid===1?'2026':'2025'));
+   const r=await apiFetch('date='+ds+'&league='+lid+'&season='+(lid===1||lid===10?'2026':'2025'));
     allResults.push(r);
   }catch(e){allResults.push({response:[]});}
   await new Promise(r=>setTimeout(r,300));
