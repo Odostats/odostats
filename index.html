@@ -452,18 +452,15 @@ async function loadAllMatches(){
   const ds=currentDate.toISOString().split('T')[0];
   try{
     const leagues=[1,10,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
-    const batchSize=3;
-    const batches=[];
-    for(let i=0;i<leagues.length;i+=batchSize)batches.push(leagues.slice(i,i+batchSize));
-    const allResults=[];
-    for(const batch of batches){
-      const results=await Promise.all(batch.map(lid=>apiFetch('date='+ds+'&league='+lid+'&season='+(lid===1?'2026':lid===10?'2025':'2025')).catch(e=>{console.log('FAIL',lid,e);return {response:[]};})))
-      allResults.push(...results);
-      await new Promise(r=>setTimeout(r,500));
-    }
+   const allResults=[];
+for(const lid of leagues){
+  try{
+    const r=await apiFetch('date='+ds+'&league='+lid+'&season='+(lid===1?'2026':'2025'));
+    allResults.push(r);
+  }catch(e){allResults.push({response:[]});}
+  await new Promise(r=>setTimeout(r,300));
+}
     allFixtures=allResults.flatMap(r=>r.response||[]);
-console.log('Total fixtures:', allFixtures.length, 'League 10:', allFixtures.filter(f=>f.league.id===10).length);
-allResults.forEach((r,i)=>console.log('Batch result',i,r.response?.length??'ERROR',r.errors));
     renderMatches();
     loadAITip();
     loadOddsForVisible();
