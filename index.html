@@ -245,7 +245,18 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
 .login-switch span{color:var(--green);cursor:pointer;font-weight:600}
 .login-switch span:hover{text-decoration:underline}
 
-@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}.lineup-wrap{grid-template-columns:1fr}.match-odds-col{display:none}}
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .lineup-wrap{grid-template-columns:1fr}
+  .match-odds-col{display:none}
+  .ai-tip-banner{flex-wrap:wrap;gap:6px;padding:8px 12px}
+  .ai-tip-text{font-size:11px;min-width:0}
+  .match-team-name{font-size:11px}
+  .match-row{grid-template-columns:55px 1fr auto 1fr;gap:6px;padding:8px 10px}
+  .topbar{gap:6px;padding:0 10px}
+  .date-btn{padding:3px 7px;font-size:10px}
+}
 </style>
 </head>
   <body>
@@ -275,6 +286,9 @@ button{font-family:'Inter',sans-serif;cursor:pointer}
     <div class="sb-label">🏆 WM 2026</div>
     <div class="sb-item" onclick="filterLeague(1)" style="color:var(--green);font-weight:700"><span class="sb-flag">🌍</span>WM 2026 – Alle Spiele</div>
     <div class="sb-divider"></div>
+    <div class="sb-label">🌍 International</div>
+<div class="sb-item" onclick="filterLeague(10)"><span class="sb-flag">🤝</span>Int. Freundschaftsspiele</div>
+<div class="sb-divider"></div>
     <div class="sb-label">Europe – Top</div>
     <div class="sb-item" onclick="filterLeague(39)"><span class="sb-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>Premier League</div>
     <div class="sb-item" onclick="filterLeague(78)"><span class="sb-flag">🇩🇪</span>Bundesliga</div>
@@ -437,7 +451,7 @@ async function loadAllMatches(){
   container.innerHTML='<div class="spin-wrap"><div class="spin"></div><span>Loading matches...</span></div>';
   const ds=currentDate.toISOString().split('T')[0];
   try{
-    const leagues=[1,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
+    const leagues=[1,10,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
     const batchSize=5;
     const batches=[];
     for(let i=0;i<leagues.length;i+=batchSize)batches.push(leagues.slice(i,i+batchSize));
@@ -489,7 +503,7 @@ async function loadAllTeams(){
   }
 
   // Load fresh
-  const leagues=[1,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
+  const leagues=[1,10,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
  const results=await Promise.all(leagues.map(lid=>apiFetch('teams='+lid+'&season='+(lid===1?2026:2025)).catch(()=>({response:[]}))));
  const allT=results.flatMap(r=>r.response||[]).map(t=>({id:t.team.id,name:t.team.name,logo:t.team.logo||'',country:t.team.country||''}));
 const seen=new Set();
