@@ -457,7 +457,7 @@ async function loadAllMatches(){
     for(let i=0;i<leagues.length;i+=batchSize)batches.push(leagues.slice(i,i+batchSize));
     const allResults=[];
     for(const batch of batches){
-      const results=await Promise.all(batch.map(lid=>apiFetch('date='+ds+'&league='+lid+'&season='+(lid===1?'2026':lid===10?'2024':'2025')).catch(()=>({response:[]}))))
+      const results=await Promise.all(batch.map(lid=>apiFetch('date='+ds+'&league='+lid+'&season='+(lid===1?'2026':lid===10?'2025':'2025')).catch(()=>({response:[]}))))
       allResults.push(...results);
     }
     allFixtures=allResults.flatMap(r=>r.response||[]);
