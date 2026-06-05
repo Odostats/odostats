@@ -452,13 +452,14 @@ async function loadAllMatches(){
   const ds=currentDate.toISOString().split('T')[0];
   try{
     const leagues=[1,10,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
-    const batchSize=5;
+    const batchSize=3;
     const batches=[];
     for(let i=0;i<leagues.length;i+=batchSize)batches.push(leagues.slice(i,i+batchSize));
     const allResults=[];
     for(const batch of batches){
       const results=await Promise.all(batch.map(lid=>apiFetch('date='+ds+'&league='+lid+'&season='+(lid===1?'2026':lid===10?'2025':'2025')).catch(()=>({response:[]}))))
       allResults.push(...results);
+      await new Promise(r=>setTimeout(r,500));
     }
     allFixtures=allResults.flatMap(r=>r.response||[]);
 console.log('Total fixtures:', allFixtures.length, 'League 10:', allFixtures.filter(f=>f.league.id===10).length);
