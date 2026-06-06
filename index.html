@@ -465,6 +465,7 @@ for(let i=0;i<leagues.length;i+=batchSize){
     loadAITip();
     loadOddsForVisible();
     updateTipResults();
+    loadPlayersForToday();
   }catch(e){
     container.innerHTML='<div class="empty">Error: '+e.message+'</div>';
   }
