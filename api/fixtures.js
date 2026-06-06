@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   } else if (q.odds) {
     endpoint = `odds?fixture=${q.fixture}&bookmaker=1`;
   } else if (q.team) {
-    endpoint = `fixtures?team=${q.team}&last=${q.last || 5}&season=${q.season || '2025'}`;
+    endpoint = `fixtures?team=${q.team}&last=${q.last || 5}&season=${q.season || '2025'}${q.league ? '&league='+q.league : ''}`;
   } else if (q.h2h) {
     endpoint = `fixtures/headtohead?h2h=${q.h2h}&last=10`;
   } else if (q.player) {
