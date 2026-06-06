@@ -1202,7 +1202,8 @@ async function openPlayer(enc){
 
     // Letzte 5 Spiele laden für Hit Rates
     if(p.teamId){
- const last5Data=await apiFetch('team='+p.teamId+'&last=5&season=2026');
+ const last5Data=await apiFetch('team='+p.teamId+'&last=5&season=2025');
+const fx=(last5Data.response||[]).length>0 ? last5Data.response : (await apiFetch('team='+p.teamId+'&last=5&season=2026')).response||[];
       const fx=last5Data.response||[];
 
       // Form Badges
