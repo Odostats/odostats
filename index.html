@@ -669,9 +669,9 @@ const visibleFixtures=allFixtures.filter(f=>['NS','1H','2H','HT'].includes(f.fix
         if(!bet)continue;
         for(const v of bet.values||[]){
           const odd=parseFloat(v.odd);
-          if(odd>=1.30&&odd<=1.80){
+         if(odd>=1.20&&odd<=1.50){
             const label=market.labels[v.value]||v.value;
-            const conf=odd<=1.30?'Sehr Hoch':odd<=1.42?'Hoch':'Mittel';
+            const conf=odd<=1.25?'Sehr Hoch':odd<=1.35?'Hoch':'Mittel';
            allTips.push({fixtureId:f.fixture.id,label,conf,odd,market:market.name});
           }
         }
@@ -689,7 +689,9 @@ allTips.forEach(t=>{
 });
 const combined=Object.values(grouped).map(tips=>{
   if(tips.length===2){
-    return{fixtureId:tips[0].fixtureId,label:tips[0].label+' + '+tips[1].label,odd:Math.round(tips[0].odd*tips[1].odd*100)/100,conf:tips[0].conf};
+    const combinedOdd=Math.round(tips[0].odd*tips[1].odd*100)/100;
+if(combinedOdd>2.0)return tips[0];
+return{fixtureId:tips[0].fixtureId,label:tips[0].label+' + '+tips[1].label,odd:combinedOdd,conf:tips[0].conf};
   }
   return tips[0];
 });
