@@ -452,13 +452,13 @@ async function loadAllMatches(){
 const ds=(currentDate||new Date()).toISOString().split('T')[0];
   try{
     const leagues=[1,10,2,3,39,40,61,78,88,94,103,106,113,119,135,140,144,169,179,197,203,207,218,253,262,307,848];
-   const allResults=[];
-for(const lid of leagues){
-  try{
-   const r=await apiFetch('date='+ds+'&league='+lid+'&season='+(lid===1||lid===10?'2026':'2025'));
-    allResults.push(r);
-  }catch(e){allResults.push({response:[]});}
-  await new Promise(r=>setTimeout(r,300));
+  const allResults=[];
+const batchSize=3;
+for(let i=0;i<leagues.length;i+=batchSize){
+  const batch=leagues.slice(i,i+batchSize);
+  const results=await Promise.all(batch.map(lid=>apiFetch('date='+ds+'&league='+lid+'&season='+(lid===1||lid===10?'2026':'2025')).catch(()=>({response:[]}))));
+  allResults.push(...results);
+  await new Promise(r=>setTimeout(r,200));
 }
     allFixtures=allResults.flatMap(r=>r.response||[]);
     renderMatches();
