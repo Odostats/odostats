@@ -472,10 +472,23 @@ for(let i=0;i<leagues.length;i+=batchSize){
 async function loadPlayersForToday(){
   const teams=new Set();
   allFixtures.forEach(f=>{
-    teams.add({id:f.teams.home.id,name:f.teams.home.name,logo:f.teams.home.logo});
-    teams.add({id:f.teams.away.id,name:f.teams.away.name,logo:f.teams.away.logo});
+    teams.add(JSON.stringify({id:f.teams.home.id,name:f.teams.home.name,logo:f.teams.home.logo}));
+    teams.add(JSON.stringify({id:f.teams.away.id,name:f.teams.away.name,logo:f.teams.away.logo}));
   });
-  for(const t of [...teams].slice(0,10)){
+  const allTeamsList=[...teams].map(t=>JSON.parse(t));
+  
+  // Lade WM-Teams zusätzlich
+  try{
+    const wmData=await apiFetch('teams=1&season=2026');
+    const wmTeams=wmData.response||[];
+    wmTeams.forEach(t=>{
+      if(!allTeamsList.find(x=>x.id===t.team.id)){
+        allTeamsList.push({id:t.team.id,name:t.team.name,logo:t.team.logo||''});
+      }
+    });
+  }catch(e){}
+
+  for(const t of allTeamsList.slice(0,30)){
     try{
       const data=await apiFetch('squad='+t.id);
       const players=data.response?.[0]?.players||[];
