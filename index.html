@@ -1200,18 +1200,18 @@ async function openPlayer(enc){
         <div class="pro-stat-box"><div class="pro-stat-label">Pass %</div><div class="pro-stat-val" style="filter:none;color:var(--green)">${passAcc}%</div></div>
       </div>`;
 
-    // Letzte 5 Spiele laden für Hit Rates
-    if(p.teamId){
-const last5Data=await apiFetch('team='+p.teamId+'&last=5&season=2026');
-let fx=last5Data.response||[];
-if(!fx.length){
-  const fd=await apiFetch('team='+p.teamId+'&last=5&season=2025');
-  fx=fd.response||[];
-}
-if(!fx.length){
-  const fd2=await apiFetch('team='+p.teamId+'&last=5&season=2024');
-  fx=fd2.response||[];
-}
+// Letzte 5 Spiele laden für Hit Rates
+if(p.teamId){
+  const last5Data=await apiFetch('team='+p.teamId+'&last=5&season=2026');
+  let fx=last5Data.response||[];
+  if(!fx.length){
+    const fd=await apiFetch('team='+p.teamId+'&last=5&season=2025');
+    fx=fd.response||[];
+  }
+  if(!fx.length){
+    const fd2=await apiFetch('team='+p.teamId+'&last=5&season=2024');
+    fx=fd2.response||[];
+  }
       // Form Badges
       const formHtml=fx.slice(0,5).map(f=>{
         const isH=f.teams.home.id===p.teamId;
